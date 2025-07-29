@@ -1,4 +1,6 @@
-# Phxstore
+# phxstore
+
+phxstore is an ecommerce app built with Phoenix framework.
 
 To start your Phoenix server:
 
@@ -8,6 +10,27 @@ To start your Phoenix server:
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+
+## Backlog
+
+- [ ] Admin users
+- [ ] Product models
+- [ ] Admin form for creating products
+- [ ] Admin view for listing products
+- [ ] Updating and deleting products
+- [ ] Landing page
+- [ ] Product list view
+- [ ] Product detail view
+- [ ] Working auth
+- [ ] Purchase models
+- [ ] Payments
+
+## Future
+
+- [ ] Wishlist
+- [ ] Cart
+- [ ] Coupons
+- [ ] Notifications
 
 ## Learn more
 
