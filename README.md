@@ -13,8 +13,8 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 ## Backlog
 
-- [ ] Admin users
-- [ ] Product models
+- [x] Admin users
+- [x] Product models
 - [ ] Admin form for creating products
 - [ ] Admin view for listing products
 - [ ] Updating and deleting products
