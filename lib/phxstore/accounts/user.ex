@@ -8,6 +8,7 @@ defmodule Phxstore.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
+    field :is_admin, :boolean, default: false
 
     timestamps(type: :utc_datetime)
   end
@@ -104,6 +105,23 @@ defmodule Phxstore.Accounts.User do
     else
       changeset
     end
+  end
+
+  @doc """
+  A user changeset for registering an admin user.
+
+  Uses email and password validation.
+  """
+  def admin_changeset(user, attrs, opts \\ []) do
+    now = DateTime.utc_now(:second)
+
+    user
+    |> cast(attrs, [:email, :password])
+    |> put_change(:is_admin, true)
+    |> put_change(:confirmed_at, now)
+    |> validate_email(opts)
+    |> validate_confirmation(:password, message: "does not match password")
+    |> validate_password(opts)
   end
 
   @doc """

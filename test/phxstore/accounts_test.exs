@@ -87,6 +87,34 @@ defmodule Phxstore.AccountsTest do
     end
   end
 
+  describe "register_admin_user/1" do
+    test "creates admin user with confirmation" do
+      email = unique_user_email()
+      password = valid_user_password()
+
+      {:ok, user} = Accounts.register_admin_user(%{email: email, password: password})
+
+      assert user.email == email
+      assert user.is_admin == true
+      assert user.confirmed_at
+      assert is_binary(user.hashed_password)
+      assert is_nil(user.password)
+    end
+
+    test "validates required fields" do
+      {:error, changeset} = Accounts.register_admin_user(%{})
+
+      assert %{email: ["can't be blank"], password: ["can't be blank"]} = errors_on(changeset)
+    end
+
+    test "validates email format" do
+      {:error, changeset} =
+        Accounts.register_admin_user(%{email: "invalid", password: valid_user_password()})
+
+      assert %{email: ["must have the @ sign and no spaces"]} = errors_on(changeset)
+    end
+  end
+
   describe "sudo_mode?/2" do
     test "validates the authenticated_at time" do
       now = DateTime.utc_now()

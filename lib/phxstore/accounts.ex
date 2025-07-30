@@ -80,6 +80,26 @@ defmodule Phxstore.Accounts do
     |> Repo.insert()
   end
 
+  @doc """
+  Registers an admin user.
+
+  Creates a user with admin privileges, automatically confirmed.
+
+  ## Examples
+
+  iex> register_admin_user(%{email: "admin@example.com", password: "validpassword123"})
+  {:ok, %User{is_admin: true, confirmed_at: ~U[...]}}
+
+  iex> register_admin_user(%{email: "invalid"})
+  {:error, %Ecto.Changeset{}}
+
+  """
+  def register_admin_user(attrs) do
+    %User{}
+    |> User.admin_changeset(attrs)
+    |> Repo.insert()
+  end
+
   ## Settings
 
   @doc """
