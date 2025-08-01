@@ -282,10 +282,16 @@ defmodule PhxstoreWeb.UserAuth do
   @doc """
   Plug for routes that require the user to be an admin.
   """
-  def require_admin_user(conn, _opts) do
-    scope = conn.assigns.current_scope
+  def require_admin_user(conn, opts) do
+    conn
+    |> require_authenticated_user(opts)
+    |> maybe_require_admin()
+  end
 
-    if scope && scope.user && scope.user.is_admin do
+  defp maybe_require_admin(%{halted: true} = conn), do: conn
+
+  defp maybe_require_admin(conn) do
+    if conn.assigns.current_scope.user.is_admin do
       conn
     else
       conn

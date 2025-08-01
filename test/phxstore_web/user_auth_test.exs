@@ -366,6 +366,50 @@ defmodule PhxstoreWeb.UserAuthTest do
     end
   end
 
+  describe "require_admin_user/2" do
+    setup %{conn: conn} do
+      %{conn: UserAuth.fetch_current_scope_for_user(conn, [])}
+    end
+
+    test "redirects if user is not authenticated", %{conn: conn} do
+      conn = conn |> fetch_flash() |> UserAuth.require_admin_user([])
+      assert conn.halted
+
+      assert redirected_to(conn) == ~p"/users/log-in"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "You must log in to access this page."
+    end
+
+    test "redirects if user is not an admin", %{conn: conn, user: user} do
+      conn =
+        conn
+        |> assign(:current_scope, Scope.for_user(user))
+        |> fetch_flash()
+        |> UserAuth.require_admin_user([])
+
+      assert conn.halted
+
+      assert redirected_to(conn) == ~p"/"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "You are not allowed to see this page."
+    end
+
+    test "does not redirect if user is an admin", %{conn: conn, user: user} do
+      {:ok, user} = Phxstore.Repo.update(Ecto.Changeset.change(user, %{is_admin: true}))
+
+      conn =
+        conn
+        |> assign(:current_scope, Scope.for_user(user))
+        |> fetch_flash()
+        |> UserAuth.require_admin_user([])
+
+      refute conn.halted
+      refute conn.status
+    end
+  end
+
   describe "disconnect_sessions/1" do
     test "broadcasts disconnect messages for each token" do
       tokens = [%{token: "token1"}, %{token: "token2"}]
