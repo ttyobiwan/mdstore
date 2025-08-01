@@ -72,4 +72,20 @@ defmodule PhxstoreWeb.Router do
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
   end
+
+  ## Admin routes
+
+  scope "/admin", PhxstoreWeb do
+    pipe_through [:browser, :require_admin_user]
+
+    live_session :admin_user,
+      on_mount: [{PhxstoreWeb.UserAuth, :mount_current_scope}] do
+      live "/", AdminLive.Index, :index
+
+      # Products
+      live "/products", AdminLive.Products.Index, :index
+      live "/products/new", AdminLive.Products.Form, :new
+      live "/products/:id", AdminLive.Products.Form, :edit
+    end
+  end
 end

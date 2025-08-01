@@ -17,8 +17,8 @@ defmodule Phxstore.Products.Product do
   def changeset(product, attrs) do
     product
     |> cast(attrs, [:name, :description, :quantity, :price, :front_image_id])
-    |> validate_required([:name, :description, :quantity, :price])
+    |> validate_required([:name, :description, :quantity, :price, :front_image_id])
     |> validate_number(:quantity, greater_than_or_equal_to: 0)
-    |> validate_number(:score, greater_than_or_equal_to: 0)
+    |> validate_number(:price, greater_than_or_equal_to: 0)
   end
 end

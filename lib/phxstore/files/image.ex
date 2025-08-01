@@ -10,7 +10,6 @@ defmodule Phxstore.Files.Image do
 
   @doc false
   def changeset(image, attrs) do
-    # todo: validate size, extension
     image
     |> cast(attrs, [:name])
     |> validate_required([:name])

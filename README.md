@@ -15,8 +15,12 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 - [x] Admin users
 - [x] Product models
-- [ ] Admin form for creating products
+- [x] Admin form for creating products
+  - [ ] Form tests
+  - [ ] Auth tests
 - [ ] Admin view for listing products
+  - [ ] Pagination
+  - [ ] Tests
 - [ ] Updating and deleting products
 - [ ] Landing page
 - [ ] Product list view
@@ -31,6 +35,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 - [ ] Cart
 - [ ] Coupons
 - [ ] Notifications
+- [ ] Oban job to clean up orphaned images
 
 ## Learn more
 
