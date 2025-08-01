@@ -7,7 +7,7 @@ defmodule Phxstore.FilesFixtures do
     default_name = unique_image_name()
 
     Enum.into(attrs, %{
-      name: default_name,
+      path: default_name,
       id: Ecto.UUID.generate(),
       filename: default_name
     })

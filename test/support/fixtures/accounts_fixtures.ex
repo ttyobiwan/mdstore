@@ -5,6 +5,7 @@ defmodule Phxstore.AccountsFixtures do
   """
 
   import Ecto.Query
+  import Ecto.Changeset
 
   alias Phxstore.Accounts
   alias Phxstore.Accounts.Scope
@@ -38,6 +39,11 @@ defmodule Phxstore.AccountsFixtures do
     {:ok, {user, _expired_tokens}} =
       Accounts.login_user_by_magic_link(token)
 
+    user
+  end
+
+  def admin_user_fixture(attrs \\ %{}) do
+    {:ok, user} = Phxstore.Repo.update(change(user_fixture(attrs), %{is_admin: true}))
     user
   end
 

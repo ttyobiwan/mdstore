@@ -1,6 +1,6 @@
 defmodule Phxstore.Files.Storages.Test do
   def save_file(_path, _id, filename) do
-    filename
+    {:ok, filename}
   end
 
   def get_file_link(filename) do
@@ -8,5 +8,6 @@ defmodule Phxstore.Files.Storages.Test do
   end
 
   def delete_file(_path) do
+    :ok
   end
 end
