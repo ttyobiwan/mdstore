@@ -313,6 +313,7 @@ defmodule PhxstoreWeb.CoreComponents do
       </.table>
   """
   attr :id, :string, required: true
+  attr :class, :string, required: false
   attr :rows, :list, required: true
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
   attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
@@ -334,7 +335,7 @@ defmodule PhxstoreWeb.CoreComponents do
       end
 
     ~H"""
-    <table class="table table-zebra">
+    <table class={["table table-zebra", @class]}>
       <thead>
         <tr>
           <th :for={col <- @col}>{col[:label]}</th>
@@ -468,5 +469,51 @@ defmodule PhxstoreWeb.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  @doc """
+  Renders a modal.
+  """
+  attr :id, :string, default: nil
+  attr :show, :boolean, default: false
+  attr :on_cancel, JS, default: %JS{}
+  slot :inner_block, required: true
+
+  def modal(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      phx-mounted={@show && show_modal(@id)}
+      phx-remove={hide_modal(@id)}
+      data-cancel={JS.exec(@on_cancel, "phx-remove")}
+      class="modal modal-open"
+      style={(@show && "display: flex") || "display: none"}
+    >
+      <div class="modal-box">
+        <button
+          phx-click={JS.exec("data-cancel", to: "##{@id}")}
+          type="button"
+          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+          aria-label={gettext("close")}
+        >
+          <.icon name="hero-x-mark" class="size-4" />
+        </button>
+        {render_slot(@inner_block)}
+      </div>
+      <div class="modal-backdrop" phx-click={JS.exec("data-cancel", to: "##{@id}")}></div>
+    </div>
+    """
+  end
+
+  defp show_modal(js \\ %JS{}, id) do
+    js
+    |> JS.show(to: "##{id}")
+    |> JS.add_class("modal-open", to: "##{id}")
+  end
+
+  defp hide_modal(js \\ %JS{}, id) do
+    js
+    |> JS.hide(to: "##{id}")
+    |> JS.remove_class("modal-open", to: "##{id}")
   end
 end

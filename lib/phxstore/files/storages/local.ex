@@ -32,6 +32,7 @@ defmodule Phxstore.Files.Storages.Local do
     |> File.rm()
   end
 
+  # Get file extenstion from the filename.
   defp get_extension(filename) do
     filename
     |> Path.extname()

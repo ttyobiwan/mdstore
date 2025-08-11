@@ -22,17 +22,19 @@ defmodule Phxstore.Images do
   end
 
   @doc """
-  Get link to the image.
+  Gets a link to the image.
   """
   def get_image_link(image) do
     @storage.get_file_link(image.name)
   end
 
   @doc """
-  Delete image.
+  Deletes the image and the corresponding file.
   """
   def delete_image(image) do
-    @storage.delete_file(image.name)
-    Repo.delete(image)
+    with :ok <- @storage.delete_file(image.name),
+         {:ok, image} <- Repo.delete(image) do
+      {:ok, image}
+    end
   end
 end

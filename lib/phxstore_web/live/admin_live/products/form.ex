@@ -110,6 +110,7 @@ defmodule PhxstoreWeb.AdminLive.Products.Form do
     end
   end
 
+  # Create new product and save the image.
   defp save_product(socket, params, :new) do
     with {:ok, updated_params} <-
            save_image(socket, params, socket.assigns.uploads.front_image.entries),
@@ -138,6 +139,7 @@ defmodule PhxstoreWeb.AdminLive.Products.Form do
     end
   end
 
+  # Update existing product, update image if any uploads are present, and delete the existing image.
   defp save_product(socket, params, :edit) do
     with {:ok, updated_params} <-
            save_image(socket, params, socket.assigns.uploads.front_image.entries),
