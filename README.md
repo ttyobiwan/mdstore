@@ -17,12 +17,13 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - [x] Admin users
 - [x] Product models
 - [x] Admin form for creating products
-  - [ ] Form tests
-  - [ ] Auth tests
-- [ ] Admin view for listing products
-  - [ ] Pagination
-  - [ ] Tests
-- [ ] Updating and deleting products
+  - [x] Form tests
+  - [x] Auth tests
+- [x] Admin view for listing products
+  - [x] Pagination
+  - [x] Tests
+- [x] Updating and deleting products
+- [ ] Navbar
 - [ ] Django-like admin navigation
 - [ ] Search in admin
 - [ ] Landing page

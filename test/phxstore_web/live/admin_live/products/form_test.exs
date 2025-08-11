@@ -5,7 +5,7 @@ defmodule PhxstoreWeb.AdminLive.Products.FormTest do
   import Phxstore.AccountsFixtures
   import Phxstore.ProductsFixtures
 
-  describe "new form page" do
+  describe "new product form page" do
     test "displays empty form", %{conn: conn} do
       {:ok, _lv, html} =
         conn
@@ -78,7 +78,7 @@ defmodule PhxstoreWeb.AdminLive.Products.FormTest do
     end
   end
 
-  describe "edit form page" do
+  describe "edit product form page" do
     test "renders filled form", %{conn: conn} do
       product = product_fixture()
 

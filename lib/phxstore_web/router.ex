@@ -79,6 +79,7 @@ defmodule PhxstoreWeb.Router do
     pipe_through [:browser, :require_admin_user]
 
     live_session :admin_user,
+      layout: {PhxstoreWeb.Layouts, :default},
       on_mount: [{PhxstoreWeb.UserAuth, :mount_current_scope}] do
       live "/", AdminLive.Index, :index
 

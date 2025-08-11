@@ -78,7 +78,7 @@ defmodule PhxstoreWeb.AdminLive.Products.Index do
 
   def render(assigns) do
     ~H"""
-    <div class="max-w-6xl mx-auto px-4">
+    <div>
       <.header>
         Products
         <:actions>
@@ -88,7 +88,7 @@ defmodule PhxstoreWeb.AdminLive.Products.Index do
         </:actions>
       </.header>
 
-      <div class="flex justify-between items-center mb-4">
+      <div class="flex justify-between tems-center mb-4">
         <form phx-change="change_per_page" class="flex items-center gap-2">
           <.input
             type="select"
@@ -112,76 +112,73 @@ defmodule PhxstoreWeb.AdminLive.Products.Index do
             <span class="font-medium">{product.name}</span>
           </:col>
           <:action :let={{_id, product}}>
-            <button
-              type="button"
-              onclick={"window.location.href='#{~p"/admin/products/#{product}"}'"}
-              class="btn btn-sm btn-primary"
-            >
+            <.button navigate={~p"/admin/products/#{product}"} class="btn btn-sm btn-primary">
               Edit
-            </button>
+            </.button>
           </:action>
           <:action :let={{_id, product}}>
-            <button
-              type="button"
+            <.button
+              id={"delete-product-#{product.id}"}
               phx-click={JS.push("show_delete_modal", value: %{id: product.id})}
               class="btn btn-sm btn-error"
             >
               Delete
-            </button>
+            </.button>
           </:action>
         </.table>
       </div>
 
       <div class="flex justify-center mt-6">
         <div class="join">
-          <button
+          <.button
             class="join-item btn btn-sm"
             phx-click="change_page"
             phx-value-page={@current_page - 1}
             disabled={@current_page <= 1}
           >
             Previous
-          </button>
+          </.button>
           <button class="join-item btn btn-sm btn-active">
             Page {@current_page} of {@total_pages}
           </button>
-          <button
+          <.button
             class="join-item btn btn-sm"
             phx-click="change_page"
             phx-value-page={@current_page + 1}
             disabled={@current_page >= @total_pages}
           >
             Next
-          </button>
+          </.button>
         </div>
       </div>
     </div>
 
-    <div :if={@delete_product} class="modal modal-open">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg mb-4">Delete Product</h3>
-        <div class="flex items-center gap-3 mb-6">
-          <.icon name="hero-exclamation-triangle" class="w-8 h-8 text-error flex-shrink-0" />
-          <p>
-            Are you sure you want to delete "<span class="font-semibold">{@delete_product.name}</span>"?
-            This action cannot be undone.
-          </p>
-        </div>
-        <div class="modal-action">
-          <button type="button" phx-click="hide_delete_modal" class="btn btn-outline">
-            Cancel
-          </button>
-          <button
-            type="button"
-            phx-click={JS.push("confirm_delete", value: %{id: @delete_product.id})}
-            class="btn btn-error"
-          >
-            Delete
-          </button>
-        </div>
+    <.modal
+      id="delete-product-modal"
+      show={@delete_product != nil}
+      on_cancel={JS.push("hide_delete_modal")}
+    >
+      <h3 class="font-bold text-lg mb-4">Delete Product</h3>
+      <div class="flex items-center gap-3 mb-6">
+        <.icon name="hero-exclamation-triangle" class="w-8 h-8 text-error flex-shrink-0" />
+        <p>
+          Are you sure you want to delete "<span class="font-semibold">{@delete_product.name}</span>"?
+          This action cannot be undone.
+        </p>
       </div>
-      <div class="modal-backdrop" phx-click="hide_delete_modal"></div>
-    </div>
+      <div class="modal-action">
+        <.button phx-click="hide_delete_modal" class="btn btn-outline">
+          Cancel
+        </.button>
+        <.button
+          id="confirm-delete-product"
+          phx-click={JS.push("confirm_delete", value: %{id: @delete_product.id})}
+          class="btn btn-error"
+        >
+          Delete
+        </.button>
+      </div>
+    </.modal>
     """
   end
 end

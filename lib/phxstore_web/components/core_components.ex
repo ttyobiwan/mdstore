@@ -474,46 +474,35 @@ defmodule PhxstoreWeb.CoreComponents do
   @doc """
   Renders a modal.
   """
-  attr :id, :string, default: nil
+  attr :id, :string, required: true
   attr :show, :boolean, default: false
-  attr :on_cancel, JS, default: %JS{}
+  attr :on_cancel, :any, default: nil
   slot :inner_block, required: true
 
   def modal(assigns) do
     ~H"""
     <div
+      :if={@show}
       id={@id}
-      phx-mounted={@show && show_modal(@id)}
-      phx-remove={hide_modal(@id)}
-      data-cancel={JS.exec(@on_cancel, "phx-remove")}
       class="modal modal-open"
-      style={(@show && "display: flex") || "display: none"}
+      phx-click-away={@on_cancel}
+      phx-key="escape"
+      phx-keydown={@on_cancel}
     >
-      <div class="modal-box">
+      <div class="modal-box relative">
         <button
-          phx-click={JS.exec("data-cancel", to: "##{@id}")}
+          :if={@on_cancel}
           type="button"
+          phx-click={@on_cancel}
           class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-          aria-label={gettext("close")}
+          aria-label="close"
         >
           <.icon name="hero-x-mark" class="size-4" />
         </button>
         {render_slot(@inner_block)}
       </div>
-      <div class="modal-backdrop" phx-click={JS.exec("data-cancel", to: "##{@id}")}></div>
+      <div class="modal-backdrop" phx-click={@on_cancel}></div>
     </div>
     """
-  end
-
-  defp show_modal(js \\ %JS{}, id) do
-    js
-    |> JS.show(to: "##{id}")
-    |> JS.add_class("modal-open", to: "##{id}")
-  end
-
-  defp hide_modal(js \\ %JS{}, id) do
-    js
-    |> JS.hide(to: "##{id}")
-    |> JS.remove_class("modal-open", to: "##{id}")
   end
 end
