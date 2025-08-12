@@ -1,4 +1,4 @@
-defmodule Phxstore.Repo.Migrations.CreateImages do
+defmodule Mdstore.Repo.Migrations.CreateImages do
   use Ecto.Migration
 
   def change do

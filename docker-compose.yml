@@ -5,7 +5,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=phxstore
+      - POSTGRES_DB=mdstore
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:

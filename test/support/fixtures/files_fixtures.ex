@@ -1,5 +1,5 @@
-defmodule Phxstore.FilesFixtures do
-  alias Phxstore.Images
+defmodule Mdstore.FilesFixtures do
+  alias Mdstore.Images
 
   def unique_image_name, do: "image#{System.unique_integer()}.jpg"
 

@@ -1,4 +1,4 @@
-defmodule Phxstore.Repo.Migrations.CreateProducts do
+defmodule Mdstore.Repo.Migrations.CreateProducts do
   use Ecto.Migration
 
   def change do

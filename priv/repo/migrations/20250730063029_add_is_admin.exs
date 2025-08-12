@@ -1,4 +1,4 @@
-defmodule Phxstore.Repo.Migrations.AddIsAdmin do
+defmodule Mdstore.Repo.Migrations.AddIsAdmin do
   use Ecto.Migration
 
   def change do

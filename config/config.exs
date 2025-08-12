@@ -7,32 +7,32 @@
 # General application configuration
 import Config
 
-config :phxstore, :scopes,
+config :mdstore, :scopes,
   user: [
     default: true,
-    module: Phxstore.Accounts.Scope,
+    module: Mdstore.Accounts.Scope,
     assign_key: :current_scope,
     access_path: [:user, :id],
     schema_key: :user_id,
     schema_type: :id,
     schema_table: :users,
-    test_data_fixture: Phxstore.AccountsFixtures,
+    test_data_fixture: Mdstore.AccountsFixtures,
     test_setup_helper: :register_and_log_in_user
   ]
 
-config :phxstore,
-  ecto_repos: [Phxstore.Repo],
+config :mdstore,
+  ecto_repos: [Mdstore.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
-config :phxstore, PhxstoreWeb.Endpoint,
+config :mdstore, MdstoreWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: PhxstoreWeb.ErrorHTML, json: PhxstoreWeb.ErrorJSON],
+    formats: [html: MdstoreWeb.ErrorHTML, json: MdstoreWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Phxstore.PubSub,
+  pubsub_server: Mdstore.PubSub,
   live_view: [signing_salt: "pOEhyBbG"]
 
 # Configures the mailer
@@ -42,12 +42,12 @@ config :phxstore, PhxstoreWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :phxstore, Phxstore.Mailer, adapter: Swoosh.Adapters.Local
+config :mdstore, Mdstore.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.25.4",
-  phxstore: [
+  mdstore: [
     args:
       ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
@@ -57,7 +57,7 @@ config :esbuild,
 # Configure tailwind (the version is required)
 config :tailwind,
   version: "4.1.7",
-  phxstore: [
+  mdstore: [
     args: ~w(
       --input=assets/css/app.css
       --output=priv/static/assets/css/app.css
@@ -74,7 +74,7 @@ config :logger, :default_formatter,
 config :phoenix, :json_library, Jason
 
 # Configures file storage for uploads
-config :phxstore, :file_storage, Phxstore.Files.Storages.Local
+config :mdstore, :file_storage, Mdstore.Files.Storages.Local
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

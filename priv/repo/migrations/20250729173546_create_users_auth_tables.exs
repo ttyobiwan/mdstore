@@ -1,4 +1,4 @@
-defmodule Phxstore.Repo.Migrations.CreateUsersAuthTables do
+defmodule Mdstore.Repo.Migrations.CreateUsersAuthTables do
   use Ecto.Migration
 
   def change do

@@ -1,6 +1,6 @@
-defmodule Phxstore.ProductsFixtures do
-  alias Phxstore.FilesFixtures
-  alias Phxstore.Products
+defmodule Mdstore.ProductsFixtures do
+  alias Mdstore.FilesFixtures
+  alias Mdstore.Products
 
   def unique_product_name, do: "product #{System.unique_integer()}"
 
@@ -21,6 +21,6 @@ defmodule Phxstore.ProductsFixtures do
       |> valid_product_attributes()
       |> Products.create_product()
 
-    Phxstore.Repo.preload(product, :front_image)
+    Mdstore.Repo.preload(product, :front_image)
   end
 end

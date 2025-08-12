@@ -1,14 +1,14 @@
-defmodule Phxstore.AccountsFixtures do
+defmodule Mdstore.AccountsFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `Phxstore.Accounts` context.
+  entities via the `Mdstore.Accounts` context.
   """
 
   import Ecto.Query
   import Ecto.Changeset
 
-  alias Phxstore.Accounts
-  alias Phxstore.Accounts.Scope
+  alias Mdstore.Accounts
+  alias Mdstore.Accounts.Scope
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
   def valid_user_password, do: "hello world!"
@@ -43,7 +43,7 @@ defmodule Phxstore.AccountsFixtures do
   end
 
   def admin_user_fixture(attrs \\ %{}) do
-    {:ok, user} = Phxstore.Repo.update(change(user_fixture(attrs), %{is_admin: true}))
+    {:ok, user} = Mdstore.Repo.update(change(user_fixture(attrs), %{is_admin: true}))
     user
   end
 
@@ -70,7 +70,7 @@ defmodule Phxstore.AccountsFixtures do
   end
 
   def override_token_authenticated_at(token, authenticated_at) when is_binary(token) do
-    Phxstore.Repo.update_all(
+    Mdstore.Repo.update_all(
       from(t in Accounts.UserToken,
         where: t.token == ^token
       ),
@@ -80,14 +80,14 @@ defmodule Phxstore.AccountsFixtures do
 
   def generate_user_magic_link_token(user) do
     {encoded_token, user_token} = Accounts.UserToken.build_email_token(user, "login")
-    Phxstore.Repo.insert!(user_token)
+    Mdstore.Repo.insert!(user_token)
     {encoded_token, user_token.token}
   end
 
   def offset_user_token(token, amount_to_add, unit) do
     dt = DateTime.add(DateTime.utc_now(:second), amount_to_add, unit)
 
-    Phxstore.Repo.update_all(
+    Mdstore.Repo.update_all(
       from(ut in Accounts.UserToken, where: ut.token == ^token),
       set: [inserted_at: dt, authenticated_at: dt]
     )

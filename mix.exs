@@ -1,9 +1,9 @@
-defmodule Phxstore.MixProject do
+defmodule Mdstore.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :phxstore,
+      app: :mdstore,
       version: "0.1.0",
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -20,7 +20,7 @@ defmodule Phxstore.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Phxstore.Application, []},
+      mod: {Mdstore.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -77,10 +77,10 @@ defmodule Phxstore.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind phxstore", "esbuild phxstore"],
+      "assets.build": ["tailwind mdstore", "esbuild mdstore"],
       "assets.deploy": [
-        "tailwind phxstore --minify",
-        "esbuild phxstore --minify",
+        "tailwind mdstore --minify",
+        "esbuild mdstore --minify",
         "phx.digest"
       ]
     ]

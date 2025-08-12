@@ -1,4 +1,4 @@
-defmodule Phxstore.DataCase do
+defmodule Mdstore.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -10,7 +10,7 @@ defmodule Phxstore.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use Phxstore.DataCase, async: true`, although
+  by setting `use Mdstore.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -18,17 +18,17 @@ defmodule Phxstore.DataCase do
 
   using do
     quote do
-      alias Phxstore.Repo
+      alias Mdstore.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Phxstore.DataCase
+      import Mdstore.DataCase
     end
   end
 
   setup tags do
-    Phxstore.DataCase.setup_sandbox(tags)
+    Mdstore.DataCase.setup_sandbox(tags)
     :ok
   end
 
@@ -36,7 +36,7 @@ defmodule Phxstore.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Phxstore.Repo, shared: not tags[:async])
+    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Mdstore.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 

@@ -1,6 +1,6 @@
-# phxstore
+# mdstore
 
-phxstore is an ecommerce app built with Phoenix framework.
+mdstore is an ecommerce app built with Phoenix framework, that focuses on simplicity and markdown-like design.
 
 ## Installation
 
