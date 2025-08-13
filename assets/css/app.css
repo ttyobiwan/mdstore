@@ -23,8 +23,8 @@
   on Elixir colors. Build your own at: https://daisyui.com/theme-generator/ */
 @plugin "../vendor/daisyui" {
     themes:
-        caramellatte --default,
-        coffee --prefersdark;
+        lofi --default,
+        black --prefersdark;
 }
 
 /* Add variants based on LiveView classes */

@@ -1,11 +1,12 @@
 defmodule MdstoreWeb.AdminLive.Products.Index do
   use MdstoreWeb, :live_view
+  import MdstoreWeb.MdComponents
   alias Mdstore.Products
 
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(page_title: "Admin | Products")
+      |> assign(page_title: "Admin · Products")
       |> assign(:delete_product, nil)
       |> assign(:total_count, Products.count_products())
 
@@ -82,9 +83,9 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
       <.header>
         Products
         <:actions>
-          <.button navigate={~p"/admin/products/new"}>
+          <.md_button navigate={~p"/admin/products/new"}>
             New product
-          </.button>
+          </.md_button>
         </:actions>
       </.header>
 
@@ -101,32 +102,33 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
         </form>
       </div>
 
-      <div class="overflow-x-auto bg-base-100 rounded-lg shadow">
-        <.table
-          id="products"
-          class=""
-          rows={@streams.products}
-          row_click={fn {_id, product} -> JS.navigate(~p"/admin/products/#{product.id}") end}
-        >
-          <:col :let={{_id, product}} label="Name">
-            <span class="font-medium">{product.name}</span>
-          </:col>
-          <:action :let={{_id, product}}>
-            <.button navigate={~p"/admin/products/#{product}"} class="btn btn-sm btn-primary">
-              Edit
-            </.button>
-          </:action>
-          <:action :let={{_id, product}}>
-            <.button
-              id={"delete-product-#{product.id}"}
-              phx-click={JS.push("show_delete_modal", value: %{id: product.id})}
-              class="btn btn-sm btn-error"
-            >
-              Delete
-            </.button>
-          </:action>
-        </.table>
-      </div>
+      <.md_table
+        id="products"
+        class=""
+        rows={@streams.products}
+        row_click={fn {_id, product} -> JS.navigate(~p"/admin/products/#{product.id}") end}
+      >
+        <:col :let={{_id, product}} label="ID">
+          <span>{product.id}</span>
+        </:col>
+        <:col :let={{_id, product}} label="Name">
+          <span>{product.name}</span>
+        </:col>
+        <:action :let={{_id, product}}>
+          <.md_button navigate={~p"/admin/products/#{product}"} class="btn btn-sm btn-primary">
+            Edit
+          </.md_button>
+        </:action>
+        <:action :let={{_id, product}}>
+          <.md_button
+            id={"delete-product-#{product.id}"}
+            phx-click={JS.push("show_delete_modal", value: %{id: product.id})}
+            class="btn btn-sm btn-error"
+          >
+            Delete
+          </.md_button>
+        </:action>
+      </.md_table>
 
       <div class="flex justify-center mt-6">
         <div class="join">
