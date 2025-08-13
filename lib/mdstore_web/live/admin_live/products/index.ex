@@ -79,78 +79,86 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
 
   def render(assigns) do
     ~H"""
-    <div>
-      <.header>
-        Products
-        <:actions>
-          <.md_button navigate={~p"/admin/products/new"}>
-            New product
-          </.md_button>
-        </:actions>
-      </.header>
-
-      <div class="flex justify-between tems-center mb-4">
-        <form phx-change="change_per_page" class="flex items-center gap-2">
-          <.input
-            type="select"
-            name="per_page"
-            value={@query_params["per_page"]}
-            options={[{"5", "5"}, {"10", "10"}, {"25", "25"}, {"50", "50"}]}
-            class="select select-sm w-20 mb-0"
-          />
-          <span class="text-sm -mt-2">per page</span>
-        </form>
+    <div class="max-w-7xl mx-auto">
+      <div class="border-b border-base-300 pb-6 mb-8">
+        <.header>
+          Products
+        </.header>
+        <p class="text-base-content/70 mt-2 max-w-2xl">
+          Manage your product catalog. Add, edit, or remove products from your store inventory.
+        </p>
       </div>
 
-      <.md_table
-        id="products"
-        class=""
-        rows={@streams.products}
-        row_click={fn {_id, product} -> JS.navigate(~p"/admin/products/#{product.id}") end}
-      >
-        <:col :let={{_id, product}} label="ID">
-          <span>{product.id}</span>
-        </:col>
-        <:col :let={{_id, product}} label="Name">
-          <span>{product.name}</span>
-        </:col>
-        <:action :let={{_id, product}}>
-          <.md_button navigate={~p"/admin/products/#{product}"} class="btn btn-sm btn-primary">
-            Edit
-          </.md_button>
-        </:action>
-        <:action :let={{_id, product}}>
-          <.md_button
-            id={"delete-product-#{product.id}"}
-            phx-click={JS.push("show_delete_modal", value: %{id: product.id})}
-            class="btn btn-sm btn-error"
-          >
-            Delete
-          </.md_button>
-        </:action>
-      </.md_table>
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center gap-4">
+          <form phx-change="change_per_page" class="flex items-center gap-2">
+            <.input
+              type="select"
+              name="per_page"
+              value={@query_params["per_page"]}
+              options={[{"5", "5"}, {"10", "10"}, {"25", "25"}, {"50", "50"}]}
+              class="select select-sm w-20 mb-0"
+            />
+            <span class="text-sm text-base-content/70 -mt-2">products per page</span>
+          </form>
+        </div>
 
-      <div class="flex justify-center mt-6">
+        <.md_button navigate={~p"/admin/products/new"} class="btn btn-primary">
+          <.icon name="hero-plus" class="w-4 h-4 mr-2" /> New product
+        </.md_button>
+      </div>
+
+      <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden shadow-sm">
+        <.md_table
+          id="products"
+          class="table-zebra"
+          rows={@streams.products}
+          row_click={fn {_id, product} -> JS.navigate(~p"/admin/products/#{product.id}") end}
+        >
+          <:col :let={{_id, product}} label="ID">
+            <span class="font-mono text-sm text-base-content/70">#{product.id}</span>
+          </:col>
+          <:col :let={{_id, product}} label="Name">
+            <span class="font-medium text-base-content">{product.name}</span>
+          </:col>
+          <:action :let={{_id, product}}>
+            <.md_button navigate={~p"/admin/products/#{product}"} class="btn btn-sm btn-primary">
+              Edit
+            </.md_button>
+          </:action>
+          <:action :let={{_id, product}}>
+            <.md_button
+              id={"delete-product-#{product.id}"}
+              phx-click={JS.push("show_delete_modal", value: %{id: product.id})}
+              class="btn btn-sm btn-error"
+            >
+              Delete
+            </.md_button>
+          </:action>
+        </.md_table>
+      </div>
+
+      <div class="flex justify-between items-center mt-8">
+        <p class="text-sm text-base-content/70">
+          Showing page {@current_page} of {@total_pages}
+        </p>
         <div class="join">
-          <.button
-            class="join-item btn btn-sm"
+          <.md_button
+            class="join-item btn btn-sm btn-outline"
             phx-click="change_page"
             phx-value-page={@current_page - 1}
             disabled={@current_page <= 1}
           >
-            Previous
-          </.button>
-          <button class="join-item btn btn-sm btn-active">
-            Page {@current_page} of {@total_pages}
-          </button>
-          <.button
-            class="join-item btn btn-sm"
+            <.icon name="hero-chevron-left" class="w-4 h-4" /> Previous
+          </.md_button>
+          <.md_button
+            class="join-item btn btn-sm btn-outline"
             phx-click="change_page"
             phx-value-page={@current_page + 1}
             disabled={@current_page >= @total_pages}
           >
-            Next
-          </.button>
+            Next <.icon name="hero-chevron-right" class="w-4 h-4" />
+          </.md_button>
         </div>
       </div>
     </div>
@@ -169,16 +177,16 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
         </p>
       </div>
       <div class="modal-action">
-        <.button phx-click="hide_delete_modal" class="btn btn-outline">
+        <.md_button phx-click="hide_delete_modal" class="btn btn-outline">
           Cancel
-        </.button>
-        <.button
+        </.md_button>
+        <.md_button
           id="confirm-delete-product"
           phx-click={JS.push("confirm_delete", value: %{id: @delete_product.id})}
           class="btn btn-error"
         >
           Delete
-        </.button>
+        </.md_button>
       </div>
     </.modal>
     """

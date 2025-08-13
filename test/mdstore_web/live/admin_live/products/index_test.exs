@@ -47,7 +47,7 @@ defmodule MdstoreWeb.AdminLive.Products.IndexTest do
         |> live(~p"/admin/products?per_page=5")
 
       html = render(lv)
-      assert html =~ "Page 1 of 3"
+      assert html =~ "Showing page 1 of 3"
 
       first_5_products = Enum.take(products, 5)
 
@@ -66,14 +66,14 @@ defmodule MdstoreWeb.AdminLive.Products.IndexTest do
       |> render_click()
 
       html = render(lv)
-      assert html =~ "Page 2 of 3"
+      assert html =~ "Showing page 2 of 3"
 
       {:ok, lv, html} =
         conn
         |> log_in_user(admin_user_fixture())
         |> live(~p"/admin/products?per_page=25")
 
-      assert html =~ "Page 1 of 1"
+      assert html =~ "Showing page 1 of 1"
       assert has_element?(lv, "button[disabled]", "Previous")
       assert has_element?(lv, "button[disabled]", "Next")
     end
