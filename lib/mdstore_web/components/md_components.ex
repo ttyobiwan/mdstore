@@ -82,70 +82,46 @@ defmodule MdstoreWeb.MdComponents do
   end
 
   @doc """
-  Renders a markdown-styled button with sharp borders.
+  Renders a button with markdown-style design.
 
   ## Examples
 
       <.md_button>Send!</.md_button>
-      <.md_button variant="primary">Send!</.md_button>
+      <.md_button phx-click="go" variant="primary">Send!</.md_button>
       <.md_button navigate={~p"/"}>Home</.md_button>
   """
   attr :rest, :global, include: ~w(href navigate patch method download name value disabled)
-  attr :class, :string, default: ""
-  attr :variant, :string, values: ~w(primary secondary small)
+  attr :class, :string
+  attr :variant, :string, values: ~w(primary secondary neutral outline ghost), default: "neutral"
+  attr :size, :string, values: ~w(xs sm md lg xl), default: "md"
   slot :inner_block, required: true
 
   def md_button(%{rest: rest} = assigns) do
-    base_classes = [
-      "font-medium border-2 transition-colors duration-150",
-      "focus:outline-none focus:ring-2 focus:ring-offset-2",
-      "disabled:opacity-50 disabled:cursor-not-allowed"
-    ]
+    variants = %{
+      "primary" => "btn-primary",
+      "secondary" => "btn-secondary",
+      "neutral" => "btn-neutral",
+      "outline" => "btn-outline btn-neutral",
+      "ghost" => "btn-ghost",
+      nil => "btn-neutral"
+    }
 
-    variant_classes =
-      case assigns[:variant] do
-        "primary" ->
-          [
-            "px-4 py-2",
-            "bg-black text-white border-black",
-            "hover:bg-white hover:text-black",
-            "dark:bg-white dark:text-black dark:border-white",
-            "dark:hover:bg-black dark:hover:text-white",
-            "focus:ring-gray-500"
-          ]
+    sizes = %{
+      "xs" => "btn-xs",
+      "sm" => "btn-sm",
+      "md" => "btn-md",
+      "lg" => "btn-lg",
+      "xl" => "btn-xl"
+    }
 
-        "secondary" ->
-          [
-            "px-4 py-2",
-            "bg-white text-black border-black",
-            "hover:bg-black hover:text-white",
-            "dark:bg-black dark:text-white dark:border-white",
-            "dark:hover:bg-white dark:hover:text-black",
-            "focus:ring-gray-500"
-          ]
-
-        "small" ->
-          [
-            "px-2 py-1 text-xs",
-            "bg-white text-black border-black",
-            "hover:bg-black hover:text-white",
-            "dark:bg-black dark:text-white dark:border-white",
-            "dark:hover:bg-white dark:hover:text-black",
-            "focus:ring-gray-500"
-          ]
-
-        _ ->
-          [
-            "px-4 py-2",
-            "bg-white text-black border-black",
-            "hover:bg-black hover:text-white",
-            "dark:bg-black dark:text-white dark:border-white",
-            "dark:hover:bg-white dark:hover:text-black",
-            "focus:ring-gray-500"
-          ]
-      end
-
-    assigns = assign(assigns, :class, [base_classes, variant_classes, assigns.class])
+    assigns =
+      assign_new(assigns, :class, fn ->
+        [
+          "btn rounded-none",
+          Map.fetch!(variants, assigns[:variant]),
+          Map.fetch!(sizes, assigns[:size])
+        ]
+      end)
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
       ~H"""
@@ -160,5 +136,88 @@ defmodule MdstoreWeb.MdComponents do
       </button>
       """
     end
+  end
+
+  @doc """
+  Renders a markdown-styled select input.
+
+  ## Examples
+
+      <.md_input type="select" name="category" options={@categories} />
+      <.md_input type="select" name="status" options={@statuses} variant="primary" />
+  """
+  attr :id, :any, default: nil
+  attr :name, :any
+  attr :label, :string, default: nil
+  attr :value, :any
+
+  attr :type, :string,
+    default: "text",
+    values: ~w(checkbox color date datetime-local email file month number password
+               search select tel text textarea time url week)
+
+  attr :prompt, :string, default: nil
+  attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
+  attr :multiple, :boolean, default: false
+  attr :class, :string, default: nil
+
+  attr :variant, :string,
+    values: ~w(neutral primary secondary accent info success warning error ghost),
+    default: "neutral"
+
+  attr :size, :string, values: ~w(xs sm md lg xl), default: "md"
+  attr :errors, :list, default: []
+
+  attr :rest, :global, include: ~w(autocomplete form readonly disabled)
+
+  def md_input(%{type: "select"} = assigns) do
+    variants = %{
+      "neutral" => "select-neutral",
+      "primary" => "select-primary",
+      "secondary" => "select-secondary",
+      "accent" => "select-accent",
+      "info" => "select-info",
+      "success" => "select-success",
+      "warning" => "select-warning",
+      "error" => "select-error",
+      "ghost" => "select-ghost"
+    }
+
+    sizes = %{
+      "xs" => "select-xs",
+      "sm" => "select-sm",
+      "md" => "select-md",
+      "lg" => "select-lg",
+      "xl" => "select-xl"
+    }
+
+    assigns =
+      assigns
+      |> assign_new(:id, fn -> assigns[:name] end)
+      |> assign(
+        :class,
+        assigns[:class] ||
+          [
+            "select w-full border-base-content/20 rounded-none",
+            Map.fetch!(variants, assigns[:variant]),
+            Map.fetch!(sizes, assigns[:size]),
+            assigns[:errors] != [] && "select-error"
+          ]
+      )
+
+    ~H"""
+    <div class="form-control">
+      <label :if={@label} class="label">
+        <span class="label-text text-base-content">{@label}</span>
+      </label>
+      <select id={@id} name={@name} class={@class} multiple={@multiple} {@rest}>
+        <option :if={@prompt} value="">{@prompt}</option>
+        {Phoenix.HTML.Form.options_for_select(@options, @value)}
+      </select>
+      <div :if={@errors != []} class="label">
+        <span :for={msg <- @errors} class="label-text-alt text-error">{msg}</span>
+      </div>
+    </div>
+    """
   end
 end

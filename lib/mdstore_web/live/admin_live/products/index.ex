@@ -84,7 +84,7 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
         <.header>
           Products
         </.header>
-        <p class="text-base-content/70 mt-2 max-w-2xl">
+        <p class="text-base-content/80 mt-2 max-w-2xl">
           Manage your product catalog. Add, edit, or remove products from your store inventory.
         </p>
       </div>
@@ -92,18 +92,18 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
       <div class="flex justify-between items-center mb-6">
         <div class="flex items-center gap-4">
           <form phx-change="change_per_page" class="flex items-center gap-2">
-            <.input
+            <.md_input
               type="select"
               name="per_page"
+              size="xs"
               value={@query_params["per_page"]}
               options={[{"5", "5"}, {"10", "10"}, {"25", "25"}, {"50", "50"}]}
-              class="select select-sm w-20 mb-0"
             />
-            <span class="text-sm text-base-content/70 -mt-2">products per page</span>
+            <span class="text-sm text-base-content/60">products per page</span>
           </form>
         </div>
 
-        <.md_button navigate={~p"/admin/products/new"} class="btn btn-primary">
+        <.md_button navigate={~p"/admin/products/new"}>
           <.icon name="hero-plus" class="w-4 h-4 mr-2" /> New product
         </.md_button>
       </div>
@@ -116,13 +116,13 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
           row_click={fn {_id, product} -> JS.navigate(~p"/admin/products/#{product.id}") end}
         >
           <:col :let={{_id, product}} label="ID">
-            <span class="font-mono text-sm text-base-content/70">#{product.id}</span>
+            <span class="text-sm text-base-content/70">#{product.id}</span>
           </:col>
           <:col :let={{_id, product}} label="Name">
             <span class="font-medium text-base-content">{product.name}</span>
           </:col>
           <:action :let={{_id, product}}>
-            <.md_button navigate={~p"/admin/products/#{product}"} class="btn btn-sm btn-primary">
+            <.md_button navigate={~p"/admin/products/#{product}"} size="xs">
               Edit
             </.md_button>
           </:action>
@@ -130,7 +130,7 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
             <.md_button
               id={"delete-product-#{product.id}"}
               phx-click={JS.push("show_delete_modal", value: %{id: product.id})}
-              class="btn btn-sm btn-error"
+              size="xs"
             >
               Delete
             </.md_button>
@@ -139,7 +139,7 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
       </div>
 
       <div class="flex justify-between items-center mt-8">
-        <p class="text-sm text-base-content/70">
+        <p class="text-sm text-base-content/60">
           Showing page {@current_page} of {@total_pages}
         </p>
         <div class="join">
