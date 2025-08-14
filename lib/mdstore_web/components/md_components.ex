@@ -2,6 +2,7 @@ defmodule MdstoreWeb.MdComponents do
   use Phoenix.Component
 
   use Gettext, backend: MdstoreWeb.Gettext
+  import MdstoreWeb.CoreComponents
 
   @doc """
   Renders a markdown-styled table with zebra striping.
@@ -92,7 +93,11 @@ defmodule MdstoreWeb.MdComponents do
   """
   attr :rest, :global, include: ~w(href navigate patch method download name value disabled)
   attr :class, :string
-  attr :variant, :string, values: ~w(primary secondary neutral outline ghost), default: "neutral"
+
+  attr :variant, :string,
+    values: ~w(primary secondary neutral outline ghost error),
+    default: "neutral"
+
   attr :size, :string, values: ~w(xs sm md lg xl), default: "md"
   slot :inner_block, required: true
 
@@ -103,6 +108,7 @@ defmodule MdstoreWeb.MdComponents do
       "neutral" => "btn-neutral",
       "outline" => "btn-outline btn-neutral",
       "ghost" => "btn-ghost",
+      "error" => "btn-error",
       nil => "btn-neutral"
     }
 
@@ -217,6 +223,74 @@ defmodule MdstoreWeb.MdComponents do
       <div :if={@errors != []} class="label">
         <span :for={msg <- @errors} class="label-text-alt text-error">{msg}</span>
       </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a markdown-styled modal.
+
+  ## Examples
+
+      <.md_modal id="confirm-modal" show={@show_modal} on_cancel={JS.push("cancel")}>
+        <h3 class="font-bold text-lg">Confirm action</h3>
+        <p class="py-4">Are you sure you want to continue?</p>
+        <div class="modal-action">
+          <.md_button phx-click={JS.push("cancel")}>Cancel</.md_button>
+          <.md_button variant="primary" phx-click={JS.push("confirm")}>Confirm</.md_button>
+        </div>
+      </.md_modal>
+  """
+  attr :id, :string, required: true
+  attr :show, :boolean, default: false
+  attr :on_cancel, :any, default: nil
+  attr :class, :string, default: nil
+  attr :placement, :string, values: ~w(top middle bottom start end), default: "middle"
+  slot :inner_block, required: true
+
+  def md_modal(assigns) do
+    placements = %{
+      "top" => "modal-top",
+      "middle" => "modal-middle",
+      "bottom" => "modal-bottom",
+      "start" => "modal-start",
+      "end" => "modal-end"
+    }
+
+    assigns =
+      assign(
+        assigns,
+        :class,
+        assigns[:class] ||
+          [
+            "modal",
+            assigns[:show] && "modal-open",
+            Map.fetch!(placements, assigns[:placement])
+          ]
+      )
+
+    ~H"""
+    <div
+      :if={@show}
+      id={@id}
+      class={@class}
+      phx-click-away={@on_cancel}
+      phx-key="escape"
+      phx-keydown={@on_cancel}
+    >
+      <div class="modal-box bg-base-100 border border-base-content/20 rounded-none shadow-lg">
+        <button
+          :if={@on_cancel}
+          type="button"
+          phx-click={@on_cancel}
+          class="btn btn-sm btn-square btn-ghost absolute right-2 top-2 text-base-content/60 hover:text-base-content"
+          aria-label="close"
+        >
+          <.icon name="hero-x-mark" class="size-4" />
+        </button>
+        {render_slot(@inner_block)}
+      </div>
+      <div class="modal-backdrop bg-base-content/20" phx-click={@on_cancel}></div>
     </div>
     """
   end

@@ -163,32 +163,32 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
       </div>
     </div>
 
-    <.modal
+    <.md_modal
       id="delete-product-modal"
       show={@delete_product != nil}
       on_cancel={JS.push("hide_delete_modal")}
     >
-      <h3 class="font-bold text-lg mb-4">Delete Product</h3>
+      <h3 class="font-bold text-lg mb-4 text-base-content">Delete Product</h3>
       <div class="flex items-center gap-3 mb-6">
         <.icon name="hero-exclamation-triangle" class="w-8 h-8 text-error flex-shrink-0" />
-        <p>
+        <p class="text-base-content">
           Are you sure you want to delete "<span class="font-semibold">{@delete_product.name}</span>"?
           This action cannot be undone.
         </p>
       </div>
       <div class="modal-action">
-        <.md_button phx-click="hide_delete_modal" class="btn btn-outline">
+        <.md_button phx-click="hide_delete_modal" variant="outline">
           Cancel
         </.md_button>
         <.md_button
           id="confirm-delete-product"
           phx-click={JS.push("confirm_delete", value: %{id: @delete_product.id})}
-          class="btn btn-error"
+          variant="error"
         >
           Delete
         </.md_button>
       </div>
-    </.modal>
+    </.md_modal>
     """
   end
 end
