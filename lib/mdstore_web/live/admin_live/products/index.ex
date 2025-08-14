@@ -108,35 +108,28 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
         </.md_button>
       </div>
 
-      <div class="bg-base-100 border border-base-300 rounded-lg overflow-hidden shadow-sm">
-        <.md_table
-          id="products"
-          class="table-zebra"
-          rows={@streams.products}
-          row_click={fn {_id, product} -> JS.navigate(~p"/admin/products/#{product.id}") end}
-        >
-          <:col :let={{_id, product}} label="ID">
-            <span class="text-sm text-base-content/70">#{product.id}</span>
-          </:col>
-          <:col :let={{_id, product}} label="Name">
-            <span class="font-medium text-base-content">{product.name}</span>
-          </:col>
-          <:action :let={{_id, product}}>
-            <.md_button navigate={~p"/admin/products/#{product}"} size="xs">
-              Edit
-            </.md_button>
-          </:action>
-          <:action :let={{_id, product}}>
-            <.md_button
-              id={"delete-product-#{product.id}"}
-              phx-click={JS.push("show_delete_modal", value: %{id: product.id})}
-              size="xs"
-            >
-              Delete
-            </.md_button>
-          </:action>
-        </.md_table>
-      </div>
+      <.md_table id="products" size="xs" rows={@streams.products}>
+        <:col :let={{_id, product}} label="ID">
+          <span class="text-base-content/70">#{product.id}</span>
+        </:col>
+        <:col :let={{_id, product}} label="Name">
+          <span>{product.name}</span>
+        </:col>
+        <:action :let={{_id, product}}>
+          <.md_button navigate={~p"/admin/products/#{product}"} size="xs">
+            Edit
+          </.md_button>
+        </:action>
+        <:action :let={{_id, product}}>
+          <.md_button
+            id={"delete-product-#{product.id}"}
+            phx-click={JS.push("show_delete_modal", value: %{id: product.id})}
+            size="xs"
+          >
+            Delete
+          </.md_button>
+        </:action>
+      </.md_table>
 
       <div class="flex justify-between items-center mt-8">
         <p class="text-sm text-base-content/60">

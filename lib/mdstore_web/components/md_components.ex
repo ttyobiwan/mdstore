@@ -15,7 +15,7 @@ defmodule MdstoreWeb.MdComponents do
       </.md_table>
   """
   attr :id, :string, required: true
-  attr :class, :string, default: ""
+  attr :class, :string, default: nil
   attr :rows, :list, required: true
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
   attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
@@ -24,6 +24,11 @@ defmodule MdstoreWeb.MdComponents do
     default: &Function.identity/1,
     doc: "the function for mapping each row before calling the :col and :action slots"
 
+  attr :size, :string, values: ~w(xs sm md lg xl), default: "md"
+  attr :zebra, :boolean, default: true
+  attr :pin_rows, :boolean, default: false
+  attr :pin_cols, :boolean, default: false
+
   slot :col, required: true do
     attr :label, :string
   end
@@ -31,14 +36,33 @@ defmodule MdstoreWeb.MdComponents do
   slot :action, doc: "the slot for showing user actions in the last table column"
 
   def md_table(assigns) do
+    sizes = %{
+      "xs" => "table-xs",
+      "sm" => "table-sm",
+      "md" => "table-md",
+      "lg" => "table-lg",
+      "xl" => "table-xl"
+    }
+
     assigns =
       with %{rows: %Phoenix.LiveView.LiveStream{}} <- assigns do
         assign(assigns, row_id: assigns.row_id || fn {id, _item} -> id end)
       end
+      |> assign(
+        :class,
+        assigns[:class] ||
+          [
+            "table",
+            assigns[:zebra] && "table-zebra",
+            assigns[:pin_rows] && "table-pin-rows",
+            assigns[:pin_cols] && "table-pin-cols",
+            Map.fetch!(sizes, assigns[:size])
+          ]
+      )
 
     ~H"""
     <div class="overflow-x-auto border border-base-content/20">
-      <table class={["table table-zebra table-xs", @class]}>
+      <table class={@class}>
         <thead class="border-b border-base-content/20">
           <tr class="bg-base-content/5">
             <th
