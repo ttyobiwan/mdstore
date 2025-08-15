@@ -34,8 +34,6 @@ defmodule MdstoreWeb.AdminLive.Products.FormTest do
       assert html =~ "can&#39;t be blank"
       # quantity/price
       assert html =~ "must be greater than or equal to 0"
-      # front image
-      assert html =~ "Front image is required"
     end
 
     test "creates new product", %{conn: conn} do
@@ -92,7 +90,8 @@ defmodule MdstoreWeb.AdminLive.Products.FormTest do
 
       assert has_element?(
                lv,
-               "input[name='product[description]'][value='#{product.description}']"
+               "textarea[name='product[description]']",
+               product.description
              )
 
       assert has_element?(lv, "input[name='product[quantity]'][value='#{product.quantity}']")

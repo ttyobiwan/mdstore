@@ -1,8 +1,9 @@
 defmodule MdstoreWeb.AdminLive.Products.Form do
-  alias Mdstore.Images
   use MdstoreWeb, :live_view
   alias Mdstore.Products
+  alias Mdstore.Images
   alias Mdstore.Products.Product
+  import MdstoreWeb.MdComponents
 
   def mount(params, _session, socket) do
     socket =
@@ -38,45 +39,93 @@ defmodule MdstoreWeb.AdminLive.Products.Form do
 
   def render(assigns) do
     ~H"""
-    <.form for={@form} id="form" phx-change="validate" phx-submit="save">
-      <.input field={@form[:name]} type="text" label="Name" />
-      <.input field={@form[:description]} type="text" label="Description" />
-      <.input field={@form[:quantity]} type="number" label="Quantity" />
-      <.input field={@form[:price]} type="number" label="Price" />
+    <div class="max-w-2xl mx-auto">
+      <div class="card bg-base-100 border border-base-content/20 rounded-none shadow-sm">
+        <div class="card-body p-8">
+          <h2 class="card-title text-2xl text-base-content mb-6">{@page_title}</h2>
 
-      <div>
-        <%= if @product.front_image && !Enum.any?(@uploads.front_image.entries) do %>
-          <div class="mb-2">
-            <p class="text-sm text-gray-600">Current image:</p>
-            <img
-              src={Images.get_image_link(@product.front_image)}
-              alt="Current front image"
-              class="w-20 h-20 object-cover"
-            />
-          </div>
-        <% end %>
+          <.form for={@form} id="form" phx-change="validate" phx-submit="save" class="space-y-6">
+            <.md_input field={@form[:name]} type="text" label="Name" />
+            <.md_input field={@form[:description]} type="textarea" label="Description" />
+            <.md_input field={@form[:quantity]} type="number" label="Quantity" />
+            <.md_input field={@form[:price]} type="number" label="Price" step="0.01" />
 
-        <.live_file_input upload={@uploads.front_image} />
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text text-base-content">Front Image</span>
+              </label>
 
-        <%= for entry <- @uploads.front_image.entries do %>
-          <div class="flex items-center gap-2">
-            <.live_img_preview entry={entry} width="75" />
-            <span>{entry.client_name}</span>
-            <button type="button" phx-click="cancel-upload" phx-value-ref={entry.ref}>×</button>
-          </div>
-        <% end %>
+              <div
+                :if={@product.front_image && !Enum.any?(@uploads.front_image.entries)}
+                class="mb-4 p-4 border border-base-content/20 bg-base-200"
+              >
+                <p class="text-sm text-base-content/70 mb-2">Current image:</p>
+                <img
+                  src={Images.get_image_link(@product.front_image)}
+                  alt="Current front image"
+                  class="w-20 h-20 object-cover border border-base-content/20"
+                />
+              </div>
 
-        <%= for err <- upload_errors(@uploads.front_image) do %>
-          <p class="text-red-500">{error_to_string(err)}</p>
-        <% end %>
+              <div class="file-input-wrapper">
+                <.live_file_input
+                  upload={@uploads.front_image}
+                  class="file-input file-input-bordered w-full border-base-content/20 rounded-none"
+                />
+              </div>
 
-        <%= if @form[:front_image_id].errors != [] do %>
-          <p class="text-red-500">Front image is required</p>
-        <% end %>
+              <div
+                :for={entry <- @uploads.front_image.entries}
+                class="flex items-center gap-3 mt-3 p-3 border border-base-content/20 bg-base-100"
+              >
+                <.live_img_preview entry={entry} width="75" class="border border-base-content/20" />
+                <span class="text-base-content">{entry.client_name}</span>
+                <button
+                  type="button"
+                  phx-click="cancel-upload"
+                  phx-value-ref={entry.ref}
+                  class="btn btn-sm btn-square btn-ghost text-base-content/60 hover:text-error"
+                >
+                  <.icon name="hero-x-mark" class="size-4" />
+                </button>
+              </div>
+
+              <div :if={
+                Enum.any?(
+                  @uploads.front_image.entries,
+                  &(upload_errors(@uploads.front_image, &1) != [])
+                )
+              }>
+                <div :for={entry <- @uploads.front_image.entries}>
+                  <div :for={err <- upload_errors(@uploads.front_image, entry)} class="label">
+                    <span class="label-text-alt text-error">{error_to_string(err)}</span>
+                  </div>
+                </div>
+              </div>
+              <div
+                :if={
+                  !Enum.any?(
+                    @uploads.front_image.entries,
+                    &(upload_errors(@uploads.front_image, &1) != [])
+                  ) && Keyword.get(@form.errors, :front_image_id)
+                }
+                class="label"
+              >
+                <span class="label-text-alt text-error">
+                  {elem(Keyword.get(@form.errors, :front_image_id), 0)}
+                </span>
+              </div>
+            </div>
+
+            <div class="card-actions justify-end pt-4">
+              <.md_button variant="primary" phx-disable-with="Saving..." disabled={@form.errors != []}>
+                Save product
+              </.md_button>
+            </div>
+          </.form>
+        </div>
       </div>
-
-      <.button phx-disable-with="Saving...">Save product</.button>
-    </.form>
+    </div>
     """
   end
 
@@ -103,10 +152,18 @@ defmodule MdstoreWeb.AdminLive.Products.Form do
     has_existing_image = socket.assigns.product.front_image_id != nil
     has_new_upload = Enum.any?(socket.assigns.uploads.front_image.entries)
 
-    if has_existing_image || has_new_upload do
-      params
-    else
-      Map.delete(params, "front_image_id")
+    cond do
+      has_existing_image ->
+        # There must be a valid front_image_id
+        params
+
+      has_new_upload ->
+        # Prepopulate front_image_id - its going to be replaced when consuming
+        Map.put(params, "front_image_id", -1)
+
+      true ->
+        # Drop image front_image_id to force the validation
+        Map.put(params, "front_image_id", nil)
     end
   end
 

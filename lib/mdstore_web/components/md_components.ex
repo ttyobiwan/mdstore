@@ -169,10 +169,11 @@ defmodule MdstoreWeb.MdComponents do
   end
 
   @doc """
-  Renders a markdown-styled select input.
+  Renders a markdown-styled input.
 
   ## Examples
 
+      <.md_input field={@form[:name]} type="text" label="Name" />
       <.md_input type="select" name="category" options={@categories} />
       <.md_input type="select" name="status" options={@statuses} variant="primary" />
   """
@@ -180,6 +181,9 @@ defmodule MdstoreWeb.MdComponents do
   attr :name, :any
   attr :label, :string, default: nil
   attr :value, :any
+
+  attr :field, Phoenix.HTML.FormField,
+    doc: "a form field struct retrieved from the form, for example: @form[:email]"
 
   attr :type, :string,
     default: "text",
@@ -198,7 +202,16 @@ defmodule MdstoreWeb.MdComponents do
   attr :size, :string, values: ~w(xs sm md lg xl), default: "md"
   attr :errors, :list, default: []
 
-  attr :rest, :global, include: ~w(autocomplete form readonly disabled)
+  attr :rest, :global, include: ~w(autocomplete form readonly disabled step min max)
+
+  def md_input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    assigns
+    |> assign(field: nil, id: assigns.id || field.id)
+    |> assign(:errors, Enum.map(field.errors, &translate_error(&1)))
+    |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
+    |> assign_new(:value, fn -> field.value end)
+    |> md_input()
+  end
 
   def md_input(%{type: "select"} = assigns) do
     variants = %{
@@ -244,6 +257,150 @@ defmodule MdstoreWeb.MdComponents do
         <option :if={@prompt} value="">{@prompt}</option>
         {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
+      <div :if={@errors != []} class="label">
+        <span :for={msg <- @errors} class="label-text-alt text-error">{msg}</span>
+      </div>
+    </div>
+    """
+  end
+
+  def md_input(%{type: "textarea"} = assigns) do
+    variants = %{
+      "neutral" => "textarea-neutral",
+      "primary" => "textarea-primary",
+      "secondary" => "textarea-secondary",
+      "accent" => "textarea-accent",
+      "info" => "textarea-info",
+      "success" => "textarea-success",
+      "warning" => "textarea-warning",
+      "error" => "textarea-error",
+      "ghost" => "textarea-ghost"
+    }
+
+    sizes = %{
+      "xs" => "textarea-xs",
+      "sm" => "textarea-sm",
+      "md" => "textarea-md",
+      "lg" => "textarea-lg",
+      "xl" => "textarea-xl"
+    }
+
+    assigns =
+      assigns
+      |> assign_new(:id, fn -> assigns[:name] end)
+      |> assign(
+        :class,
+        assigns[:class] ||
+          [
+            "textarea w-full border-base-content/20 rounded-none",
+            Map.fetch!(variants, assigns[:variant]),
+            Map.fetch!(sizes, assigns[:size]),
+            assigns[:errors] != [] && "textarea-error"
+          ]
+      )
+
+    ~H"""
+    <div class="form-control">
+      <label :if={@label} class="label">
+        <span class="label-text text-base-content">{@label}</span>
+      </label>
+      <textarea id={@id} name={@name} class={@class} {@rest}>{@value}</textarea>
+      <div :if={@errors != []} class="label">
+        <span :for={msg <- @errors} class="label-text-alt text-error">{msg}</span>
+      </div>
+    </div>
+    """
+  end
+
+  def md_input(%{type: "file"} = assigns) do
+    variants = %{
+      "neutral" => "file-input-neutral",
+      "primary" => "file-input-primary",
+      "secondary" => "file-input-secondary",
+      "accent" => "file-input-accent",
+      "info" => "file-input-info",
+      "success" => "file-input-success",
+      "warning" => "file-input-warning",
+      "error" => "file-input-error",
+      "ghost" => "file-input-ghost"
+    }
+
+    sizes = %{
+      "xs" => "file-input-xs",
+      "sm" => "file-input-sm",
+      "md" => "file-input-md",
+      "lg" => "file-input-lg",
+      "xl" => "file-input-xl"
+    }
+
+    assigns =
+      assigns
+      |> assign_new(:id, fn -> assigns[:name] end)
+      |> assign(
+        :class,
+        assigns[:class] ||
+          [
+            "file-input w-full border-base-content/20 rounded-none",
+            Map.fetch!(variants, assigns[:variant]),
+            Map.fetch!(sizes, assigns[:size]),
+            assigns[:errors] != [] && "file-input-error"
+          ]
+      )
+
+    ~H"""
+    <div class="form-control">
+      <label :if={@label} class="label">
+        <span class="label-text text-base-content">{@label}</span>
+      </label>
+      <input type="file" id={@id} name={@name} class={@class} {@rest} />
+      <div :if={@errors != []} class="label">
+        <span :for={msg <- @errors} class="label-text-alt text-error">{msg}</span>
+      </div>
+    </div>
+    """
+  end
+
+  def md_input(assigns) do
+    variants = %{
+      "neutral" => "input-neutral",
+      "primary" => "input-primary",
+      "secondary" => "input-secondary",
+      "accent" => "input-accent",
+      "info" => "input-info",
+      "success" => "input-success",
+      "warning" => "input-warning",
+      "error" => "input-error",
+      "ghost" => "input-ghost"
+    }
+
+    sizes = %{
+      "xs" => "input-xs",
+      "sm" => "input-sm",
+      "md" => "input-md",
+      "lg" => "input-lg",
+      "xl" => "input-xl"
+    }
+
+    assigns =
+      assigns
+      |> assign_new(:id, fn -> assigns[:name] end)
+      |> assign(
+        :class,
+        assigns[:class] ||
+          [
+            "input w-full border-base-content/20 rounded-none",
+            Map.fetch!(variants, assigns[:variant]),
+            Map.fetch!(sizes, assigns[:size]),
+            assigns[:errors] != [] && "input-error"
+          ]
+      )
+
+    ~H"""
+    <div class="form-control">
+      <label :if={@label} class="label">
+        <span class="label-text text-base-content">{@label}</span>
+      </label>
+      <input type={@type} id={@id} name={@name} value={@value} class={@class} {@rest} />
       <div :if={@errors != []} class="label">
         <span :for={msg <- @errors} class="label-text-alt text-error">{msg}</span>
       </div>
