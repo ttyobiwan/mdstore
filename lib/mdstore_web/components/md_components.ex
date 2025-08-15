@@ -318,4 +318,86 @@ defmodule MdstoreWeb.MdComponents do
     </div>
     """
   end
+
+  @doc """
+  Renders a markdown-styled card component.
+
+  ## Examples
+
+      <.md_card>
+        <:title>Card Title</:title>
+        <p>Card content goes here</p>
+      </.md_card>
+
+      <.md_card variant="primary" size="lg">
+        <:title>Large Primary Card</:title>
+        <:body>
+          <p>Card body content</p>
+        </:body>
+        <:actions>
+          <.md_button>Action</.md_button>
+        </:actions>
+      </.md_card>
+  """
+  attr :class, :string, default: nil
+  attr :variant, :string, values: ~w(neutral primary secondary accent), default: "neutral"
+  attr :size, :string, values: ~w(xs sm md lg xl), default: "md"
+  attr :border, :boolean, default: true
+
+  slot :title, doc: "Card title slot"
+  slot :body, doc: "Card body content slot"
+  slot :actions, doc: "Card actions slot for buttons"
+  slot :inner_block, doc: "Default slot for card content"
+
+  def md_card(assigns) do
+    variants = %{
+      "neutral" => "bg-base-200",
+      "primary" => "bg-primary/10",
+      "secondary" => "bg-secondary/10",
+      "accent" => "bg-accent/10"
+    }
+
+    sizes = %{
+      "xs" => "w-32 h-32",
+      "sm" => "w-40 h-40",
+      "md" => "w-48 h-48",
+      "lg" => "w-56 h-56",
+      "xl" => "w-64 h-64"
+    }
+
+    assigns =
+      assign(
+        assigns,
+        :class,
+        assigns[:class] ||
+          [
+            "card rounded-none",
+            Map.fetch!(variants, assigns[:variant]),
+            Map.fetch!(sizes, assigns[:size]),
+            assigns[:border] && "border border-base-content/20"
+          ]
+      )
+
+    ~H"""
+    <div class={@class}>
+      <div class="card-body items-center text-center h-full flex flex-col justify-center">
+        <h3 :if={@title != []} class="card-title">
+          {render_slot(@title)}
+        </h3>
+
+        <div :if={@body != []}>
+          {render_slot(@body)}
+        </div>
+
+        <div :if={@inner_block != []}>
+          {render_slot(@inner_block)}
+        </div>
+
+        <div :if={@actions != []} class="card-actions justify-center mt-4">
+          {render_slot(@actions)}
+        </div>
+      </div>
+    </div>
+    """
+  end
 end
