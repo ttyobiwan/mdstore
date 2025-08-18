@@ -79,7 +79,7 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
 
   def render(assigns) do
     ~H"""
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-7xl mx-auto px-6">
       <div class="border-b border-base-300 pb-6 mb-8">
         <.header>
           Products

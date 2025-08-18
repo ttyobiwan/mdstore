@@ -35,98 +35,111 @@ defmodule MdstoreWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar bg-base-200/50 border-b border-base-content/20 px-8 font-mono">
-      <div class="navbar-start">
-        <.link navigate="/" class="text-xl font-bold tracking-tight">mdstore</.link>
+    <div class="min-h-screen flex flex-col">
+      <header class="navbar bg-base-200/50 border-b border-base-content/20 px-8 font-mono">
+        <div class="navbar-start">
+          <.link navigate="/" class="text-xl font-bold tracking-tight"># mdstore</.link>
 
-        <div class="hidden lg:flex ml-8">
-          <ul class="menu menu-horizontal px-1 space-x-2">
-            <li><.link navigate="/products" class="btn btn-ghost rounded-none">Shop</.link></li>
-            <li><.link navigate="/about" class="btn btn-ghost rounded-none">About</.link></li>
-            <li><.link navigate="/faq" class="btn btn-ghost rounded-none">FAQ</.link></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="navbar-end">
-        <!-- Mobile icons -->
-        <.link navigate="/wishlist" class="btn btn-ghost btn-square lg:hidden">
-          <.icon name="hero-heart" class="size-5" />
-        </.link>
-        <.link navigate="/cart" class="btn btn-ghost btn-square lg:hidden">
-          <.icon name="hero-shopping-cart" class="size-5" />
-        </.link>
-        
-    <!-- Mobile hamburger -->
-        <div class="dropdown dropdown-end lg:hidden">
-          <div tabindex="0" role="button" class="btn btn-ghost btn-square">
-            <.icon name="hero-bars-3" class="size-5" />
+          <div class="hidden lg:flex ml-8">
+            <ul class="menu menu-horizontal px-1 space-x-2">
+              <li><.link navigate="/products" class="btn btn-ghost rounded-none">Shop</.link></li>
+              <li><.link navigate="/about" class="btn btn-ghost rounded-none">About</.link></li>
+              <li><.link navigate="/faq" class="btn btn-ghost rounded-none">FAQ</.link></li>
+            </ul>
           </div>
-          <ul
-            tabindex="0"
-            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 border border-base-content/20 rounded-none w-52"
-          >
-            <li><.link navigate="/products">Shop</.link></li>
-            <li><.link navigate="/about">About</.link></li>
-            <li><.link navigate="/faq">FAQ</.link></li>
-            <%= if @current_scope do %>
-              <li class="menu-title">{@current_scope.user.email}</li>
-              <li><.link navigate="/users/settings">Account Settings</.link></li>
-              <%= if @current_scope.user.is_admin do %>
-                <li><.link navigate="/admin">Admin</.link></li>
-              <% end %>
-              <li><.link href="/users/log-out" method="delete">Logout</.link></li>
-            <% else %>
-              <li><.link navigate="/users/log-in">Login</.link></li>
-            <% end %>
-            <li>
-              <.simple_theme_toggle />
-            </li>
-          </ul>
         </div>
-        
-    <!-- Desktop icons -->
-        <div class="hidden lg:flex items-center space-x-2">
-          <.link navigate="/wishlist" class="btn btn-ghost btn-square">
+
+        <div class="navbar-end">
+          <!-- Mobile icons -->
+          <.link navigate="/wishlist" class="btn btn-ghost btn-square lg:hidden">
             <.icon name="hero-heart" class="size-5" />
           </.link>
-          <.link navigate="/cart" class="btn btn-ghost btn-square">
+          <.link navigate="/cart" class="btn btn-ghost btn-square lg:hidden">
             <.icon name="hero-shopping-cart" class="size-5" />
           </.link>
-
-          <%= if @current_scope do %>
-            <div class="dropdown dropdown-end">
-              <div tabindex="0" role="button" class="btn btn-ghost btn-square">
-                <.icon name="hero-user" class="size-5" />
-              </div>
-              <ul
-                tabindex="0"
-                class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 border border-base-content/20 rounded-none w-52"
-              >
+          
+    <!-- Mobile hamburger -->
+          <div class="dropdown dropdown-end lg:hidden">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-square">
+              <.icon name="hero-bars-3" class="size-5" />
+            </div>
+            <ul
+              tabindex="0"
+              class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 border border-base-content/20 rounded-none w-52"
+            >
+              <li><.link navigate="/products">Shop</.link></li>
+              <li><.link navigate="/about">About</.link></li>
+              <li><.link navigate="/faq">FAQ</.link></li>
+              <%= if @current_scope do %>
                 <li class="menu-title">{@current_scope.user.email}</li>
                 <li><.link navigate="/users/settings">Account Settings</.link></li>
                 <%= if @current_scope.user.is_admin do %>
                   <li><.link navigate="/admin">Admin</.link></li>
                 <% end %>
                 <li><.link href="/users/log-out" method="delete">Logout</.link></li>
-              </ul>
-            </div>
-          <% else %>
-            <.link navigate="/users/log-in" class="btn btn-ghost btn-square">
-              <.icon name="hero-user" class="size-5" />
+              <% else %>
+                <li><.link navigate="/users/log-in">Login</.link></li>
+              <% end %>
+              <li>
+                <.simple_theme_toggle />
+              </li>
+            </ul>
+          </div>
+          
+    <!-- Desktop icons -->
+          <div class="hidden lg:flex items-center space-x-2">
+            <.link navigate="/wishlist" class="btn btn-ghost btn-square">
+              <.icon name="hero-heart" class="size-5" />
             </.link>
-          <% end %>
+            <.link navigate="/cart" class="btn btn-ghost btn-square">
+              <.icon name="hero-shopping-cart" class="size-5" />
+            </.link>
 
-          <.simple_theme_toggle />
+            <%= if @current_scope do %>
+              <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-square">
+                  <.icon name="hero-user" class="size-5" />
+                </div>
+                <ul
+                  tabindex="0"
+                  class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 border border-base-content/20 rounded-none w-52"
+                >
+                  <li class="menu-title">{@current_scope.user.email}</li>
+                  <li><.link navigate="/users/settings">Account Settings</.link></li>
+                  <%= if @current_scope.user.is_admin do %>
+                    <li><.link navigate="/admin">Admin</.link></li>
+                  <% end %>
+                  <li><.link href="/users/log-out" method="delete">Logout</.link></li>
+                </ul>
+              </div>
+            <% else %>
+              <.link navigate="/users/log-in" class="btn btn-ghost btn-square">
+                <.icon name="hero-user" class="size-5" />
+              </.link>
+            <% end %>
+
+            <.simple_theme_toggle />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
 
-    <main class="px-4 py-10 sm:px-6 lg:px-8 font-mono">
-      <div class="mx-auto max-w-5xl space-y-4">
+      <main class="font-mono flex-1 py-12">
         {render_slot(@inner_block)}
-      </div>
-    </main>
+      </main>
+
+      <footer class="border-t border-base-content/20 px-8 py-6 font-mono text-sm mt-auto">
+        <div class="mx-auto max-w-5xl flex flex-col sm:flex-row justify-between items-center text-base-content/70">
+          <div class="mb-2 sm:mb-0">
+            © {DateTime.utc_now().year} mdstore. All rights reserved.
+          </div>
+          <div class="flex space-x-4">
+            <.link navigate="/terms" class="hover:text-base-content">Terms</.link>
+            <.link navigate="/privacy" class="hover:text-base-content">Privacy</.link>
+            <.link navigate="/contact" class="hover:text-base-content">Contact</.link>
+          </div>
+        </div>
+      </footer>
+    </div>
 
     <.flash_group flash={@flash} />
     """

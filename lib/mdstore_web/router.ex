@@ -20,7 +20,11 @@ defmodule MdstoreWeb.Router do
   scope "/", MdstoreWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live_session :current_user,
+      layout: {MdstoreWeb.Layouts, :default},
+      on_mount: [{MdstoreWeb.UserAuth, :mount_current_scope}] do
+      live "/", HomeLive.Index
+    end
   end
 
   # Other scopes may use custom stacks.
@@ -50,7 +54,7 @@ defmodule MdstoreWeb.Router do
   scope "/", MdstoreWeb do
     pipe_through [:browser, :require_authenticated_user]
 
-    live_session :require_authenticated_user,
+    live_session :authenticated_user,
       on_mount: [{MdstoreWeb.UserAuth, :require_authenticated}] do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
@@ -62,7 +66,7 @@ defmodule MdstoreWeb.Router do
   scope "/", MdstoreWeb do
     pipe_through [:browser]
 
-    live_session :current_user,
+    live_session :auth_user,
       on_mount: [{MdstoreWeb.UserAuth, :mount_current_scope}] do
       live "/users/register", UserLive.Registration, :new
       live "/users/log-in", UserLive.Login, :new
