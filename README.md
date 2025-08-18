@@ -23,10 +23,10 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
   - [x] Pagination
   - [x] Tests
 - [x] Updating and deleting products
-- [ ] Navbar
+- [x] Navbar
+- [ ] Landing page
 - [ ] Django-like admin navigation
 - [ ] Search in admin
-- [ ] Landing page
 - [ ] Product list view
 - [ ] Product detail view
 - [ ] Working auth

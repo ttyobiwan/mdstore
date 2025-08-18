@@ -35,34 +35,94 @@ defmodule MdstoreWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar px-4 sm:px-6 lg:px-8">
-      <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
-        </a>
+    <header class="navbar bg-base-200/50 border-b border-base-content/20 px-8 font-mono">
+      <div class="navbar-start">
+        <.link navigate="/" class="text-xl font-bold tracking-tight">mdstore</.link>
+
+        <div class="hidden lg:flex ml-8">
+          <ul class="menu menu-horizontal px-1 space-x-2">
+            <li><.link navigate="/products" class="btn btn-ghost rounded-none">Shop</.link></li>
+            <li><.link navigate="/about" class="btn btn-ghost rounded-none">About</.link></li>
+            <li><.link navigate="/faq" class="btn btn-ghost rounded-none">FAQ</.link></li>
+          </ul>
+        </div>
       </div>
-      <div class="flex-none">
-        <ul class="flex flex-column px-1 space-x-4 items-center">
-          <li>
-            <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
-          </li>
-          <li>
-            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
-          </li>
-          <li>
-            <.theme_toggle />
-          </li>
-          <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
-              Get Started <span aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-        </ul>
+
+      <div class="navbar-end">
+        <!-- Mobile icons -->
+        <.link navigate="/wishlist" class="btn btn-ghost btn-square lg:hidden">
+          <.icon name="hero-heart" class="size-5" />
+        </.link>
+        <.link navigate="/cart" class="btn btn-ghost btn-square lg:hidden">
+          <.icon name="hero-shopping-cart" class="size-5" />
+        </.link>
+        
+    <!-- Mobile hamburger -->
+        <div class="dropdown dropdown-end lg:hidden">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-square">
+            <.icon name="hero-bars-3" class="size-5" />
+          </div>
+          <ul
+            tabindex="0"
+            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 border border-base-content/20 rounded-none w-52"
+          >
+            <li><.link navigate="/products">Shop</.link></li>
+            <li><.link navigate="/about">About</.link></li>
+            <li><.link navigate="/faq">FAQ</.link></li>
+            <%= if @current_scope do %>
+              <li class="menu-title">{@current_scope.user.email}</li>
+              <li><.link navigate="/users/settings">Account Settings</.link></li>
+              <%= if @current_scope.user.is_admin do %>
+                <li><.link navigate="/admin">Admin</.link></li>
+              <% end %>
+              <li><.link href="/users/log-out" method="delete">Logout</.link></li>
+            <% else %>
+              <li><.link navigate="/users/log-in">Login</.link></li>
+            <% end %>
+            <li>
+              <.simple_theme_toggle />
+            </li>
+          </ul>
+        </div>
+        
+    <!-- Desktop icons -->
+        <div class="hidden lg:flex items-center space-x-2">
+          <.link navigate="/wishlist" class="btn btn-ghost btn-square">
+            <.icon name="hero-heart" class="size-5" />
+          </.link>
+          <.link navigate="/cart" class="btn btn-ghost btn-square">
+            <.icon name="hero-shopping-cart" class="size-5" />
+          </.link>
+
+          <%= if @current_scope do %>
+            <div class="dropdown dropdown-end">
+              <div tabindex="0" role="button" class="btn btn-ghost btn-square">
+                <.icon name="hero-user" class="size-5" />
+              </div>
+              <ul
+                tabindex="0"
+                class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 border border-base-content/20 rounded-none w-52"
+              >
+                <li class="menu-title">{@current_scope.user.email}</li>
+                <li><.link navigate="/users/settings">Account Settings</.link></li>
+                <%= if @current_scope.user.is_admin do %>
+                  <li><.link navigate="/admin">Admin</.link></li>
+                <% end %>
+                <li><.link href="/users/log-out" method="delete">Logout</.link></li>
+              </ul>
+            </div>
+          <% else %>
+            <.link navigate="/users/log-in" class="btn btn-ghost btn-square">
+              <.icon name="hero-user" class="size-5" />
+            </.link>
+          <% end %>
+
+          <.simple_theme_toggle />
+        </div>
       </div>
     </header>
 
-    <main class="px-4 py-20 sm:px-6 lg:px-8 font-mono">
+    <main class="px-4 py-10 sm:px-6 lg:px-8 font-mono">
       <div class="mx-auto max-w-5xl space-y-4">
         {render_slot(@inner_block)}
       </div>
@@ -146,6 +206,20 @@ defmodule MdstoreWeb.Layouts do
         <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
     </div>
+    """
+  end
+
+  @doc """
+  Simple theme toggle between light and dark themes.
+  """
+  def simple_theme_toggle(assigns) do
+    ~H"""
+    <label class="swap swap-rotate">
+      <input type="checkbox" class="theme-controller" value="black" />
+
+      <.icon name="hero-sun" class="swap-off h-6 w-6" />
+      <.icon name="hero-moon" class="swap-on h-6 w-6" />
+    </label>
     """
   end
 end
