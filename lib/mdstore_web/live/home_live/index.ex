@@ -155,7 +155,7 @@ defmodule MdstoreWeb.HomeLive.Index do
     </div>
 
     <!-- Call to Action -->
-    <div class="bg-base-200/50 py-16 -mb-8">
+    <div class="bg-base-200/50 py-16 -mb-12">
       <div class="px-4 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-5xl text-center space-y-4">
           <h2 class="text-2xl font-bold text-base-content">
