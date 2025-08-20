@@ -24,6 +24,8 @@ defmodule MdstoreWeb.Router do
       layout: {MdstoreWeb.Layouts, :default},
       on_mount: [{MdstoreWeb.UserAuth, :mount_current_scope}] do
       live "/", HomeLive.Index
+      live "/products", ProductsLive.Index
+      live "/products/:id", ProductsLive.Show
     end
   end
 

@@ -557,4 +557,72 @@ defmodule MdstoreWeb.MdComponents do
     </div>
     """
   end
+
+  @doc """
+  Renders a markdown-styled badge component.
+
+  ## Examples
+
+      <.md_badge>Default</.md_badge>
+      <.md_badge variant="success">In Stock</.md_badge>
+      <.md_badge variant="error" size="sm">Out of Stock</.md_badge>
+      <.md_badge style="outline" variant="primary">Outlined</.md_badge>
+  """
+  attr :class, :string, default: nil
+
+  attr :variant, :string,
+    values: ~w(neutral primary secondary accent info success warning error),
+    default: "neutral"
+
+  attr :style, :string, values: ~w(default outline dash soft ghost), default: "default"
+  attr :size, :string, values: ~w(xs sm md lg xl), default: "md"
+  slot :inner_block, required: true
+
+  def md_badge(assigns) do
+    variants = %{
+      "neutral" => "badge-neutral",
+      "primary" => "badge-primary",
+      "secondary" => "badge-secondary",
+      "accent" => "badge-accent",
+      "info" => "badge-info",
+      "success" => "badge-success",
+      "warning" => "badge-warning",
+      "error" => "badge-error"
+    }
+
+    styles = %{
+      "default" => nil,
+      "outline" => "badge-outline",
+      "dash" => "badge-dash",
+      "soft" => "badge-soft",
+      "ghost" => "badge-ghost"
+    }
+
+    sizes = %{
+      "xs" => "badge-xs",
+      "sm" => "badge-sm",
+      "md" => "badge-md",
+      "lg" => "badge-lg",
+      "xl" => "badge-xl"
+    }
+
+    assigns =
+      assign(
+        assigns,
+        :class,
+        assigns[:class] ||
+          [
+            "badge rounded-none",
+            Map.fetch!(variants, assigns[:variant]),
+            Map.fetch!(styles, assigns[:style]),
+            Map.fetch!(sizes, assigns[:size])
+          ]
+      )
+
+    ~H"""
+    <span class={@class}>
+      {render_slot(@inner_block)}
+    </span>
+    """
+  end
 end

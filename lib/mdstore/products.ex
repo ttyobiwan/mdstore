@@ -1,4 +1,8 @@
 defmodule Mdstore.Products do
+  @moduledoc """
+  The products context.
+  """
+
   alias Mdstore.Images
   alias Mdstore.Repo
   alias Mdstore.Products.Product
@@ -33,20 +37,35 @@ defmodule Mdstore.Products do
   end
 
   @doc """
-  Gets all products.
-  Paginates them based on the options passed.
+  Gets all products, based on the passed query and pagination.
   """
-  def get_all_products(opts \\ []) do
-    page = String.to_integer(opts[:page] || "1")
-    per_page = String.to_integer(opts[:per_page] || "10")
+  def get_all_products(page, per_page) do
     offset = (page - 1) * per_page
 
-    from(p in Product,
-      limit: ^per_page,
-      offset: ^offset,
-      preload: :front_image
+    Repo.all(
+      from(p in Product,
+        limit: ^per_page,
+        offset: ^offset,
+        preload: :front_image
+      )
     )
-    |> Repo.all()
+  end
+
+  def get_all_products(query, page, per_page) when query in ["", nil] do
+    get_all_products(page, per_page)
+  end
+
+  def get_all_products(query, page, per_page) do
+    offset = (page - 1) * per_page
+
+    Repo.all(
+      from(p in Product,
+        limit: ^per_page,
+        offset: ^offset,
+        where: ilike(p.name, ^"%#{query}%"),
+        preload: :front_image
+      )
+    )
   end
 
   @doc """
@@ -54,6 +73,14 @@ defmodule Mdstore.Products do
   """
   def count_products() do
     Repo.aggregate(Product, :count)
+  end
+
+  def count_products(query) when query in ["", nil] do
+    count_products()
+  end
+
+  def count_products(query) do
+    Repo.aggregate(from(p in Product, where: ilike(p.name, ^"%#{query}%")), :count)
   end
 
   @doc """

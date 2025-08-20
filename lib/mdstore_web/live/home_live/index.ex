@@ -14,7 +14,7 @@ defmodule MdstoreWeb.HomeLive.Index do
           Simple, markdown-inspired ecommerce. Clean design, powerful features.
         </p>
         <div class="flex gap-4 justify-center">
-          <.md_button navigate="/products" variant="primary" size="lg">
+          <.md_button navigate={~p"/products"} variant="primary" size="lg">
             Browse Products
           </.md_button>
           <.md_button navigate="/about" variant="outline" size="lg">
@@ -164,7 +164,7 @@ defmodule MdstoreWeb.HomeLive.Index do
           <p class="text-base-content/70">
             Join thousands of developers who trust mdstore for their tools and resources.
           </p>
-          <.md_button navigate="/products" variant="primary" size="lg">
+          <.md_button navigate={~p"/products"} variant="primary" size="lg">
             Start Shopping
           </.md_button>
         </div>

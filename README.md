@@ -25,8 +25,9 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - [x] Updating and deleting products
 - [x] Navbar
 - [x] Landing page
-- [ ] Product list view
-- [ ] Product detail view
+- [x] Product list view
+- [x] Product detail view
+- [ ] Product pages tests
 - [ ] Fix links
 - [ ] 404 page
 - [ ] Django-like admin navigation

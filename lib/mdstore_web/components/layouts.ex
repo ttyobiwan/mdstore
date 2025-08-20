@@ -42,7 +42,7 @@ defmodule MdstoreWeb.Layouts do
 
           <div class="hidden lg:flex ml-8">
             <ul class="menu menu-horizontal px-1 space-x-2">
-              <li><.link navigate="/products" class="btn btn-ghost rounded-none">Shop</.link></li>
+              <li><.link navigate={~p"/products"} class="btn btn-ghost rounded-none">Shop</.link></li>
               <li><.link navigate="/about" class="btn btn-ghost rounded-none">About</.link></li>
               <li><.link navigate="/faq" class="btn btn-ghost rounded-none">FAQ</.link></li>
             </ul>
@@ -67,7 +67,7 @@ defmodule MdstoreWeb.Layouts do
               tabindex="0"
               class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 border border-base-content/20 rounded-none w-52"
             >
-              <li><.link navigate="/products">Shop</.link></li>
+              <li><.link navigate={~p"/products"}>Shop</.link></li>
               <li><.link navigate="/about">About</.link></li>
               <li><.link navigate="/faq">FAQ</.link></li>
               <%= if @current_scope do %>

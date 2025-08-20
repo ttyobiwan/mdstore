@@ -13,16 +13,15 @@ defmodule MdstoreWeb.AdminLive.Products.Index do
     {:ok, socket}
   end
 
-  def handle_params(params, _, socket) do
+  def handle_params(params, _uri, socket) do
     query_params =
       Map.merge(%{"page" => "1", "per_page" => "10"}, Map.take(params, ~w(page per_page)))
-
-    products =
-      Products.get_all_products(page: query_params["page"], per_page: query_params["per_page"])
 
     per_page = String.to_integer(query_params["per_page"])
     current_page = String.to_integer(query_params["page"])
     total_pages = max(1, ceil(socket.assigns.total_count / per_page))
+
+    products = Products.get_all_products(current_page, per_page)
 
     socket =
       socket
