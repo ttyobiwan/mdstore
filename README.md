@@ -27,8 +27,7 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - [x] Landing page
 - [x] Product list view
 - [x] Product detail view
-- [ ] Product pages tests
-- [ ] Fix links
+- [x] Product pages tests
 - [ ] 404 page
 - [ ] Django-like admin navigation
 - [ ] Search in admin

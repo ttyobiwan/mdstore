@@ -18,7 +18,6 @@ defmodule MdstoreWeb.ProductsLive.Index do
     per_page = String.to_integer(query_params["per_page"])
 
     # Try to avoid excessive counting
-    #
     total_count =
       cond do
         !socket.assigns[:total_count] -> Products.count_products(query)
