@@ -1,11 +1,12 @@
 defmodule MdstoreWeb.ProductsLive.Show do
-  use MdstoreWeb, :live_view
   import MdstoreWeb.MdComponents
   require Logger
-
+  alias Mdstore.Images
   alias Mdstore.Products
   alias Stripe.PaymentIntent
   alias Mdstore.Products.Product
+
+  use MdstoreWeb, :live_view
 
   @payment_processor Application.compile_env(:mdstore, :payment_processor)
 
@@ -29,15 +30,14 @@ defmodule MdstoreWeb.ProductsLive.Show do
           socket
           |> assign(:page_title, product.name)
           |> assign(:product, product)
-          |> assign(:processing, false)
+          |> assign(:loading, false)
           |> assign(:intent, nil)
-          |> assign(:card_error, nil)
 
         {:ok, socket}
     end
   end
 
-  def handle_event("start-purchase", _params, socket) do
+  def handle_event("start_purchase", _params, socket) do
     with {:ok, customer} <- get_or_create_customer(socket.assigns.current_scope.user.email),
          {:ok, intent} <-
            @payment_processor.create_payment_intent(
@@ -69,18 +69,10 @@ defmodule MdstoreWeb.ProductsLive.Show do
     end
   end
 
-  def handle_event("card_valid", _params, socket) do
-    {:noreply, assign(socket, :card_error, nil)}
-  end
-
-  def handle_event("card_error", %{"error" => error}, socket) do
-    {:noreply, assign(socket, :card_error, error)}
-  end
-
   def handle_event("submit_payment", _params, socket) do
     {:noreply,
      socket
-     |> assign(:processing, true)
+     |> assign(:loading, true)
      |> push_event("confirm_payment", %{client_secret: socket.assigns.intent.client_secret})}
   end
 
@@ -94,10 +86,17 @@ defmodule MdstoreWeb.ProductsLive.Show do
   end
 
   def handle_event("payment_error", %{"error" => error}, socket) do
+    Logger.error(
+      "Error processing payment for #{socket.assigns.current_scope.user.email}: #{inspect(error)}"
+    )
+
     socket =
       socket
-      |> assign(:processing, false)
-      |> assign(:card_error, error)
+      |> assign(:loading, false)
+      |> put_flash(
+        :error,
+        "Something went wrong when processing the payment. Please try again."
+      )
 
     {:noreply, socket}
   end
@@ -112,19 +111,18 @@ defmodule MdstoreWeb.ProductsLive.Show do
 
   attr :product, Product, required: true
   attr :intent, PaymentIntent, required: false
-  attr :processing, :boolean, required: true
-  attr :card_error, :string, required: false
+  attr :loading, :boolean, required: true
 
   def actions(assigns) do
     ~H"""
     <div class="border-t border-base-content/20 pt-6 space-y-4">
       <.md_button
         :if={@product.quantity > 0 and !@intent}
-        disabled={@processing}
+        disabled={@loading}
         phx-disable-with="Loading..."
         variant="primary"
         size="lg"
-        phx-click="start-purchase"
+        phx-click="start_purchase"
       >
         <.icon name="hero-shopping-cart" class="w-5 h-5 mr-2" /> Buy Now
       </.md_button>
@@ -149,12 +147,13 @@ defmodule MdstoreWeb.ProductsLive.Show do
               Card Information
             </label>
             <div
-              :if={@card_error}
-              class="text-error text-sm font-medium flex items-center gap-2 bg-error/10 p-3 border border-error/20"
+              id="card-error-display"
+              class="hidden text-error text-sm font-medium flex items-center gap-2 bg-error/10 p-3 border border-error/20"
             >
               <.icon name="hero-exclamation-triangle" class="w-4 h-4 flex-shrink-0" />
-              <span>{@card_error}</span>
+              <span id="card-error-text"></span>
             </div>
+
             <div class="border border-base-content/20 bg-base-100 p-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-200">
               <div
                 id="card-element"
@@ -166,18 +165,19 @@ defmodule MdstoreWeb.ProductsLive.Show do
             </div>
           </div>
 
-          <div class="flex items-center justify-between ">
+          <div class="flex items-center justify-between">
             <div class="text-sm text-base-content/60">
               Secure payment powered by Stripe
             </div>
             <.md_button
-              disabled={@processing or @card_error}
-              phx-disable-with="Processing..."
+              id="pay-button"
+              disabled={@loading}
+              phx-disable-with="Loading..."
               variant="primary"
               size="md"
             >
               <.icon name="hero-lock-closed" class="w-4 h-4 mr-2" />
-              {if @processing, do: "Processing...", else: "Pay Now"}
+              {if @loading, do: "Loading...", else: "Pay Now"}
             </.md_button>
           </div>
         </form>
@@ -215,7 +215,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
           <div class="aspect-square bg-base-200 border border-base-content/20 overflow-hidden">
             <img
               :if={@product.front_image}
-              src={"/uploads/#{@product.front_image.name}"}
+              src={Images.get_image_link(@product.front_image)}
               alt={@product.name}
               class="w-full h-full object-cover"
             />
@@ -253,12 +253,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
             </div>
           </div>
 
-          <.actions
-            product={@product}
-            intent={@intent}
-            processing={@processing}
-            card_error={@card_error}
-          />
+          <.actions product={@product} intent={@intent} loading={@loading} />
         </div>
       </div>
       

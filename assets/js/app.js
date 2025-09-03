@@ -27,18 +27,16 @@ import topbar from "../vendor/topbar";
 import { loadStripe } from "@stripe/stripe-js";
 
 let Hooks = { ...colocatedHooks };
-
 Hooks.StripeElements = {
   async mounted() {
     const stripeKey = this.el.dataset.stripeKey;
     this.stripe = await loadStripe(stripeKey);
     const elements = this.stripe.elements();
 
-    // Detect current theme
     const isDark =
       document.documentElement.getAttribute("data-theme") === "black";
 
-    const cardElement = elements.create("card", {
+    this.cardElement = elements.create("card", {
       style: {
         base: {
           fontSize: "16px",
@@ -57,18 +55,38 @@ Hooks.StripeElements = {
       },
     });
 
-    cardElement.mount(this.el);
-    this.cardElement = cardElement;
+    this.cardElement.mount(this.el);
+    this.cardValid = false;
 
-    cardElement.on("change", (event) => {
+    this.cardElement.on("change", (event) => {
+      const errorDiv = document.getElementById("card-error-display");
+      const errorSpan = document.getElementById("card-error-text");
+      const payButton = document.getElementById("pay-button");
+
+      this.cardValid = event.complete && !event.error;
+
       if (event.error) {
-        this.pushEvent("card_error", { error: event.error.message });
+        errorSpan.textContent = event.error.message;
+        errorDiv.classList.remove("hidden");
+        payButton.disabled = true;
       } else {
-        this.pushEvent("card_valid", {});
+        errorSpan.textContent = "";
+        errorDiv.classList.add("hidden");
+        payButton.disabled = !event.complete;
       }
     });
 
     this.handleEvent("confirm_payment", async ({ client_secret }) => {
+      const errorDiv = document.getElementById("card-error-display");
+      const errorSpan = errorDiv.querySelector("span");
+
+      if (!this.cardValid) {
+        errorSpan.textContent = "Please enter valid card information.";
+        errorDiv.classList.remove("hidden");
+        this.pushEvent("payment_error", { error: "Invalid card" });
+        return;
+      }
+
       const { error, paymentIntent } = await this.stripe.confirmCardPayment(
         client_secret,
         {
@@ -79,6 +97,8 @@ Hooks.StripeElements = {
       );
 
       if (error) {
+        errorSpan.textContent = error.message;
+        errorDiv.classList.remove("hidden");
         this.pushEvent("payment_error", { error: error.message });
       } else {
         this.pushEvent("payment_success", { payment_intent: paymentIntent });
