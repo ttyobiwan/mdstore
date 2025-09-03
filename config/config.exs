@@ -76,6 +76,13 @@ config :phoenix, :json_library, Jason
 # Configures file storage for uploads
 config :mdstore, :file_storage, Mdstore.Files.Storages.Local
 
+# Configures payment processor
+config :stripity_stripe,
+  api_key: System.get_env("STRIPE_SECRET"),
+  publishable_key: System.get_env("STRIPE_PUBLISHABLE_KEY")
+
+config :mdstore, :payment_processor, Mdstore.Payments.Stripe
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
