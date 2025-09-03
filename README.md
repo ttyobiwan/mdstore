@@ -4,10 +4,18 @@ mdstore is an ecommerce app built with Phoenix framework, that focuses on simpli
 
 ## Installation
 
-To start your Phoenix server:
+To get started, first prepare an `.env` file with all environment variables:
+
+```
+export STRIPE_SECRET=
+export STRIPE_PUBLISHABLE_KEY=
+```
+
+Then, take the following steps to start your Phoenix server:
 
 * Run `docker compose up` to start all extra services in Docker containers
 * Run `mix setup` to install and setup dependencies
+* Export your env variables, e.g. by using `source .env`
 * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.

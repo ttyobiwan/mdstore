@@ -1,22 +1,159 @@
 defmodule MdstoreWeb.ProductsLive.Show do
   use MdstoreWeb, :live_view
   import MdstoreWeb.MdComponents
+  require Logger
+
   alias Mdstore.Products
+  alias Stripe.PaymentIntent
+  alias Mdstore.Products.Product
+
+  @payment_processor Application.compile_env(:mdstore, :payment_processor)
 
   def mount(%{"id" => id}, _session, socket) do
+    # 1. style the component
+    # 2. clean up processor, imports and keys usage
+    # 3. create intent async
+    # 4. add tests
+
     case Products.get_product(id) do
       nil ->
-        {:ok,
-         socket
-         |> put_flash(:error, "Product not found")
-         |> push_navigate(to: ~p"/products")}
+        socket =
+          socket
+          |> put_flash(:error, "Product not found")
+          |> push_navigate(to: ~p"/products")
+
+        {:ok, socket}
 
       product ->
-        {:ok,
-         socket
-         |> assign(:product, product)
-         |> assign(:page_title, product.name)}
+        socket =
+          socket
+          |> assign(:page_title, product.name)
+          |> assign(:product, product)
+          |> assign(:processing, false)
+          |> assign(:intent, nil)
+          |> assign(:card_error, nil)
+
+        {:ok, socket}
     end
+  end
+
+  def handle_event("start-purchase", _params, socket) do
+    with {:ok, customer} <- get_or_create_customer(socket.assigns.current_scope.user.email),
+         {:ok, intent} <-
+           @payment_processor.create_payment_intent(
+             trunc(socket.assigns.product.price * 100),
+             "eur",
+             customer.id,
+             %{
+               product_id: socket.assigns.product.id
+             }
+           ) do
+      Logger.info(
+        "New payment intent created: #{socket.assigns.current_scope.user.email} #{intent.id}"
+      )
+
+      socket = assign(socket, :intent, intent)
+      {:noreply, socket}
+    else
+      {:error, reason} ->
+        Logger.error("Error when starting purchase: #{inspect(reason)}")
+
+        socket =
+          put_flash(
+            socket,
+            :error,
+            "Something went wrong when setting up the payment. Please try again."
+          )
+
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event("card_valid", _params, socket) do
+    {:noreply, assign(socket, :card_error, nil)}
+  end
+
+  def handle_event("card_error", %{"error" => error}, socket) do
+    {:noreply, assign(socket, :card_error, error)}
+  end
+
+  def handle_event("submit_payment", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:processing, true)
+     |> push_event("confirm_payment", %{client_secret: socket.assigns.intent.client_secret})}
+  end
+
+  def handle_event("payment_success", %{"payment_intent" => _payment_intent}, socket) do
+    socket =
+      socket
+      |> put_flash(:info, "Payment successful! Thank you for your purchase.")
+      |> push_navigate(to: ~p"/products")
+
+    {:noreply, socket}
+  end
+
+  def handle_event("payment_error", %{"error" => error}, socket) do
+    socket =
+      socket
+      |> assign(:processing, false)
+      |> assign(:card_error, error)
+
+    {:noreply, socket}
+  end
+
+  defp get_or_create_customer(email) do
+    case @payment_processor.get_customer_by_email(email) do
+      {:ok, %{data: [customer]}} -> {:ok, customer}
+      {:ok, %{data: []}} -> @payment_processor.create_customer(email)
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  attr :product, Product, required: true
+  attr :intent, PaymentIntent, required: false
+  attr :processing, :boolean, required: true
+  attr :card_error, :string, required: false
+
+  def actions(assigns) do
+    ~H"""
+    <div class="border-t border-base-content/20 pt-6 space-y-4">
+      <.md_button
+        :if={@product.quantity > 0 and !@intent}
+        disabled={@processing}
+        phx-disable-with="Loading..."
+        variant="primary"
+        size="lg"
+        phx-click="start-purchase"
+      >
+        <.icon name="hero-shopping-cart" class="w-5 h-5 mr-2" /> Buy Now
+      </.md_button>
+
+      <.md_button :if={@product.quantity == 0} variant="outline" size="lg">
+        <.icon name="hero-bell" class="w-5 h-5 mr-2" /> Notify
+      </.md_button>
+    </div>
+
+    <div :if={@intent} class="payment-form">
+      <form phx-submit="submit_payment">
+        <div class="form-group">
+          <label for="card-element">Credit or debit card</label>
+          <div
+            id="card-element"
+            phx-hook="StripeElements"
+            data-stripe-key={Application.get_env(:stripity_stripe, :publishable_key)}
+            phx-update="ignore"
+          >
+          </div>
+          <div :if={@card_error} class="stripe-error-message">{@card_error}</div>
+        </div>
+
+        <.md_button disabled={@processing} phx-disable-with="Loading...">
+          Pay Now
+        </.md_button>
+      </form>
+    </div>
+    """
   end
 
   def render(assigns) do
@@ -63,7 +200,6 @@ defmodule MdstoreWeb.ProductsLive.Show do
         
     <!-- Product Information -->
         <div class="space-y-6">
-          <!-- Title and Price -->
           <div>
             <h1 class="text-3xl font-bold text-base-content mb-4">{@product.name}</h1>
             <div class="flex items-center gap-4 mb-4">
@@ -79,37 +215,20 @@ defmodule MdstoreWeb.ProductsLive.Show do
               </.md_badge>
             </div>
           </div>
-          
-    <!-- Description -->
+
           <div :if={@product.description} class="border-t border-base-content/20 pt-6">
             <h2 class="text-lg font-semibold text-base-content mb-3">Description</h2>
             <div class="prose prose-base max-w-none text-base-content/80">
               <p class="whitespace-pre-wrap">{@product.description}</p>
             </div>
           </div>
-          
-    <!-- Actions -->
-          <div class="border-t border-base-content/20 pt-6 space-y-4">
-            <.md_button
-              :if={@product.quantity > 0}
-              variant="primary"
-              size="lg"
-              class="w-full"
-              disabled
-            >
-              <.icon name="hero-shopping-cart" class="w-5 h-5 mr-2" /> Add to Cart (Coming Soon)
-            </.md_button>
 
-            <.md_button
-              :if={@product.quantity == 0}
-              variant="outline"
-              size="lg"
-              class="w-full"
-              disabled
-            >
-              <.icon name="hero-bell" class="w-5 h-5 mr-2" /> Notify When Available (Coming Soon)
-            </.md_button>
-          </div>
+          <.actions
+            product={@product}
+            intent={@intent}
+            processing={@processing}
+            card_error={@card_error}
+          />
         </div>
       </div>
       

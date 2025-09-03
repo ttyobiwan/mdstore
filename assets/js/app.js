@@ -24,6 +24,69 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import { hooks as colocatedHooks } from "phoenix-colocated/mdstore";
 import topbar from "../vendor/topbar";
+import { loadStripe } from "@stripe/stripe-js";
+
+let Hooks = { ...colocatedHooks };
+
+Hooks.StripeElements = {
+  async mounted() {
+    // Prevent remounting if already initialized
+    if (this.stripe && this.cardElement) {
+      return;
+    }
+
+    const stripeKey = this.el.dataset.stripeKey;
+    this.stripe = await loadStripe(stripeKey);
+    const elements = this.stripe.elements();
+
+    const cardElement = elements.create("card", {
+      style: {
+        base: {
+          fontSize: "16px",
+          color: "#424770",
+          "::placeholder": {
+            color: "#aab7c4",
+          },
+        },
+      },
+    });
+
+    cardElement.mount(this.el);
+    this.cardElement = cardElement;
+
+    cardElement.on("change", (event) => {
+      if (event.error) {
+        this.pushEvent("card_error", { error: event.error.message });
+      } else {
+        this.pushEvent("card_valid", {});
+      }
+    });
+
+    this.handleEvent("confirm_payment", async ({ client_secret }) => {
+      const { error, paymentIntent } = await this.stripe.confirmCardPayment(
+        client_secret,
+        {
+          payment_method: {
+            card: this.cardElement,
+          },
+        },
+      );
+
+      if (error) {
+        this.pushEvent("payment_error", { error: error.message });
+      } else {
+        this.pushEvent("payment_success", { payment_intent: paymentIntent });
+      }
+    });
+  },
+
+  destroyed() {
+    if (this.cardElement) {
+      this.cardElement.destroy();
+      this.cardElement = null;
+    }
+  },
+};
 
 const csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -31,7 +94,7 @@ const csrfToken = document
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
-  hooks: { ...colocatedHooks },
+  hooks: Hooks,
 });
 
 // Show progress bar on live navigation and form submits
