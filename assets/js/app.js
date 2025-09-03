@@ -30,23 +30,29 @@ let Hooks = { ...colocatedHooks };
 
 Hooks.StripeElements = {
   async mounted() {
-    // Prevent remounting if already initialized
-    if (this.stripe && this.cardElement) {
-      return;
-    }
-
     const stripeKey = this.el.dataset.stripeKey;
     this.stripe = await loadStripe(stripeKey);
     const elements = this.stripe.elements();
+
+    // Detect current theme
+    const isDark =
+      document.documentElement.getAttribute("data-theme") === "black";
 
     const cardElement = elements.create("card", {
       style: {
         base: {
           fontSize: "16px",
-          color: "#424770",
+          fontFamily: "ui-sans-serif, system-ui, sans-serif",
+          color: isDark ? "#e5e7eb" : "#1f2937",
+          backgroundColor: "transparent",
+          iconColor: isDark ? "#d1d5db" : "#6b7280",
           "::placeholder": {
-            color: "#aab7c4",
+            color: isDark ? "#9ca3af" : "#9ca3af",
           },
+        },
+        invalid: {
+          color: isDark ? "#fca5a5" : "#ef4444",
+          iconColor: isDark ? "#fca5a5" : "#ef4444",
         },
       },
     });
@@ -78,13 +84,6 @@ Hooks.StripeElements = {
         this.pushEvent("payment_success", { payment_intent: paymentIntent });
       }
     });
-  },
-
-  destroyed() {
-    if (this.cardElement) {
-      this.cardElement.destroy();
-      this.cardElement = null;
-    }
   },
 };
 

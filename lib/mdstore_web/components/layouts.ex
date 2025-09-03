@@ -228,10 +228,20 @@ defmodule MdstoreWeb.Layouts do
   def simple_theme_toggle(assigns) do
     ~H"""
     <label class="swap swap-rotate">
-      <input type="checkbox" class="theme-controller" value="black" />
+      <input
+        type="checkbox"
+        value="black"
+        phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "toggle"})}
+      />
 
-      <.icon name="hero-sun" class="swap-off h-6 w-6" />
-      <.icon name="hero-moon" class="swap-on h-6 w-6" />
+      <.icon
+        name="hero-sun"
+        class="[[data-theme=lofi]_&]:block [[data-theme=black]_&]:hidden h-6 w-6"
+      />
+      <.icon
+        name="hero-moon"
+        class="[[data-theme=black]_&]:block [[data-theme=lofi]_&]:hidden h-6 w-6"
+      />
     </label>
     """
   end

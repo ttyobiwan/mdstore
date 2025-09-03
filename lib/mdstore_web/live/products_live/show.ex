@@ -49,7 +49,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
              }
            ) do
       Logger.info(
-        "New payment intent created: #{socket.assigns.current_scope.user.email} #{intent.id}"
+        "New payment intent created for #{socket.assigns.current_scope.user.email}: #{intent.id}"
       )
 
       socket = assign(socket, :intent, intent)
@@ -134,24 +134,54 @@ defmodule MdstoreWeb.ProductsLive.Show do
       </.md_button>
     </div>
 
-    <div :if={@intent} class="payment-form">
-      <form phx-submit="submit_payment">
-        <div class="form-group">
-          <label for="card-element">Credit or debit card</label>
-          <div
-            id="card-element"
-            phx-hook="StripeElements"
-            data-stripe-key={Application.get_env(:stripity_stripe, :publishable_key)}
-            phx-update="ignore"
-          >
-          </div>
-          <div :if={@card_error} class="stripe-error-message">{@card_error}</div>
-        </div>
+    <div
+      :if={@intent}
+      class="space-y-6 p-6 border border-base-content/20 bg-base-100/50 backdrop-blur-sm"
+    >
+      <div class="space-y-4">
+        <h3 class="text-xl font-semibold text-base-content flex items-center gap-2">
+          <.icon name="hero-credit-card" class="w-5 h-5" /> Payment Details
+        </h3>
 
-        <.md_button disabled={@processing} phx-disable-with="Loading...">
-          Pay Now
-        </.md_button>
-      </form>
+        <form phx-submit="submit_payment" class="space-y-6">
+          <div class="space-y-3">
+            <label for="card-element" class="block text-sm font-medium text-base-content/70">
+              Card Information
+            </label>
+            <div
+              :if={@card_error}
+              class="text-error text-sm font-medium flex items-center gap-2 bg-error/10 p-3 border border-error/20"
+            >
+              <.icon name="hero-exclamation-triangle" class="w-4 h-4 flex-shrink-0" />
+              <span>{@card_error}</span>
+            </div>
+            <div class="border border-base-content/20 bg-base-100 p-4 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all duration-200">
+              <div
+                id="card-element"
+                phx-hook="StripeElements"
+                data-stripe-key={Application.get_env(:stripity_stripe, :publishable_key)}
+                phx-update="ignore"
+              >
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between ">
+            <div class="text-sm text-base-content/60">
+              Secure payment powered by Stripe
+            </div>
+            <.md_button
+              disabled={@processing or @card_error}
+              phx-disable-with="Processing..."
+              variant="primary"
+              size="md"
+            >
+              <.icon name="hero-lock-closed" class="w-4 h-4 mr-2" />
+              {if @processing, do: "Processing...", else: "Pay Now"}
+            </.md_button>
+          </div>
+        </form>
+      </div>
     </div>
     """
   end
