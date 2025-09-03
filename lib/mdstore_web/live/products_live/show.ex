@@ -1,6 +1,7 @@
 defmodule MdstoreWeb.ProductsLive.Show do
   import MdstoreWeb.MdComponents
   require Logger
+  alias Mdstore.Payments
   alias Mdstore.Images
   alias Mdstore.Products
   alias Stripe.PaymentIntent
@@ -8,14 +9,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
 
   use MdstoreWeb, :live_view
 
-  @payment_processor Application.compile_env(:mdstore, :payment_processor)
-
   def mount(%{"id" => id}, _session, socket) do
-    # 1. style the component
-    # 2. clean up processor, imports and keys usage
-    # 3. create intent async
-    # 4. add tests
-
     case Products.get_product(id) do
       nil ->
         socket =
@@ -40,7 +34,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
   def handle_event("start_purchase", _params, socket) do
     with {:ok, customer} <- get_or_create_customer(socket.assigns.current_scope.user.email),
          {:ok, intent} <-
-           @payment_processor.create_payment_intent(
+           Payments.create_payment_intent(
              trunc(socket.assigns.product.price * 100),
              "eur",
              customer.id,
@@ -70,6 +64,8 @@ defmodule MdstoreWeb.ProductsLive.Show do
   end
 
   def handle_event("submit_payment", _params, socket) do
+    Logger.info("Payment submited by #{current_user(socket).email}: #{socket.assigns.intent.id}")
+
     {:noreply,
      socket
      |> assign(:loading, true)
@@ -77,6 +73,10 @@ defmodule MdstoreWeb.ProductsLive.Show do
   end
 
   def handle_event("payment_success", %{"payment_intent" => _payment_intent}, socket) do
+    Logger.info(
+      "Payment successfull for #{current_user(socket).email}: #{socket.assigns.intent.id}"
+    )
+
     socket =
       socket
       |> put_flash(:info, "Payment successful! Thank you for your purchase.")
@@ -86,9 +86,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
   end
 
   def handle_event("payment_error", %{"error" => error}, socket) do
-    Logger.error(
-      "Error processing payment for #{socket.assigns.current_scope.user.email}: #{inspect(error)}"
-    )
+    Logger.error("Error processing payment for #{current_user(socket).email}: #{inspect(error)}")
 
     socket =
       socket
@@ -101,13 +99,17 @@ defmodule MdstoreWeb.ProductsLive.Show do
     {:noreply, socket}
   end
 
+  defp current_user(socket), do: socket.assigns.current_scope.user
+
   defp get_or_create_customer(email) do
-    case @payment_processor.get_customer_by_email(email) do
+    case Payments.get_customer_by_email(email) do
       {:ok, %{data: [customer]}} -> {:ok, customer}
-      {:ok, %{data: []}} -> @payment_processor.create_customer(email)
+      {:ok, %{data: []}} -> Payments.create_customer(email)
       {:error, reason} -> {:error, reason}
     end
   end
+
+  defp stripe_public_key(), do: Application.get_env(:stripity_stripe, :publishable_key)
 
   attr :product, Product, required: true
   attr :intent, PaymentIntent, required: false
@@ -158,7 +160,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
               <div
                 id="card-element"
                 phx-hook="StripeElements"
-                data-stripe-key={Application.get_env(:stripity_stripe, :publishable_key)}
+                data-stripe-key={stripe_public_key()}
                 phx-update="ignore"
               >
               </div>
