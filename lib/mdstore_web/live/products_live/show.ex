@@ -1,5 +1,6 @@
 defmodule MdstoreWeb.ProductsLive.Show do
   import MdstoreWeb.MdComponents
+  alias Mdstore.Checkouts
   alias Mdstore.Carts
   alias Mdstore.Payments
   alias Mdstore.Images
@@ -71,21 +72,27 @@ defmodule MdstoreWeb.ProductsLive.Show do
       do: redirect_to_login(socket)
 
   def handle_event("start_purchase", _params, socket) do
-    with {:ok, customer} <- get_or_create_customer(socket.assigns.current_scope.user.email),
+    with {:ok, checkout} <-
+           Checkouts.create_checkout(%{
+             status: :started,
+             total: socket.assigns.product.price,
+             user_id: current_user(socket).id,
+             product_id: socket.assigns.product.id
+           }),
+         {:ok, customer} <- get_or_create_customer(current_user(socket).email),
          {:ok, intent} <-
            Payments.create_payment_intent(
              trunc(socket.assigns.product.price * 100),
              "eur",
              customer.id,
              %{
-               product_id: socket.assigns.product.id
+               product_id: socket.assigns.product.id,
+               checkout_id: checkout.id
              }
            ) do
-      Logger.info(
-        "New payment intent created for #{socket.assigns.current_scope.user.email}: #{intent.id}"
-      )
+      Logger.info("New payment intent created for #{current_user(socket).email}: #{intent.id}")
 
-      socket = assign(socket, :intent, intent)
+      socket = socket |> assign(:checkout, checkout) |> assign(:intent, intent)
       {:noreply, socket}
     else
       {:error, reason} ->
@@ -105,16 +112,43 @@ defmodule MdstoreWeb.ProductsLive.Show do
   def handle_event("submit_payment", _params, socket) do
     Logger.info("Payment submited by #{current_user(socket).email}: #{socket.assigns.intent.id}")
 
-    {:noreply,
-     socket
-     |> assign(:loading, true)
-     |> push_event("confirm_payment", %{client_secret: socket.assigns.intent.client_secret})}
+    case Checkouts.update_status(socket.assigns.checkout, :submitted) do
+      {:ok, _checkout} ->
+        {:noreply,
+         socket
+         |> assign(:loading, true)
+         |> push_event("confirm_payment", %{client_secret: socket.assigns.intent.client_secret})}
+
+      {:error, reason} ->
+        Logger.error(
+          "Error when updating checkout status for #{current_user(socket).email}: #{inspect(reason)}"
+        )
+
+        socket =
+          put_flash(
+            socket,
+            :error,
+            "Something went wrong when setting up the payment. Please try again."
+          )
+
+        {:noreply, socket}
+    end
   end
 
   def handle_event("payment_success", %{"payment_intent" => _payment_intent}, socket) do
     Logger.info(
       "Payment successfull for #{current_user(socket).email}: #{socket.assigns.intent.id}"
     )
+
+    case Checkouts.update_status(socket.assigns.checkout, :successful) do
+      {:ok, _checkout} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.error(
+          "Error when updating checkout status for #{current_user(socket).email}: #{inspect(reason)}"
+        )
+    end
 
     socket =
       socket
@@ -126,6 +160,16 @@ defmodule MdstoreWeb.ProductsLive.Show do
 
   def handle_event("payment_error", %{"error" => error}, socket) do
     Logger.error("Error processing payment for #{current_user(socket).email}: #{inspect(error)}")
+
+    case Checkouts.update_status(socket.assigns.checkout, :failed) do
+      {:ok, _checkout} ->
+        :ok
+
+      {:error, reason} ->
+        Logger.error(
+          "Error when updating checkout status for #{current_user(socket).email}: #{inspect(reason)}"
+        )
+    end
 
     socket =
       socket

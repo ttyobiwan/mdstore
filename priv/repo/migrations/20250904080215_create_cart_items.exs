@@ -4,8 +4,8 @@ defmodule Mdstore.Repo.Migrations.CreateCartItems do
   def change do
     create table(:cart_items) do
       add :quantity, :integer, default: 1
-      add :cart_id, references(:carts, on_delete: :nothing)
-      add :product_id, references(:products, on_delete: :nothing)
+      add :cart_id, references(:carts, on_delete: :delete_all)
+      add :product_id, references(:products, on_delete: :delete_all)
 
       timestamps(type: :utc_datetime)
     end
