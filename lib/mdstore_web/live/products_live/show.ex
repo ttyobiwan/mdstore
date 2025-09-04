@@ -1,11 +1,11 @@
 defmodule MdstoreWeb.ProductsLive.Show do
   import MdstoreWeb.MdComponents
-  require Logger
   alias Mdstore.Payments
   alias Mdstore.Images
   alias Mdstore.Products
   alias Stripe.PaymentIntent
   alias Mdstore.Products.Product
+  require Logger
 
   use MdstoreWeb, :live_view
 
@@ -30,6 +30,10 @@ defmodule MdstoreWeb.ProductsLive.Show do
         {:ok, socket}
     end
   end
+
+  def handle_event("start_purchase", _params, socket)
+      when socket.assigns.current_scope == nil or socket.assigns.current_scope.user == nil,
+      do: redirect_to_login(socket)
 
   def handle_event("start_purchase", _params, socket) do
     with {:ok, customer} <- get_or_create_customer(socket.assigns.current_scope.user.email),
@@ -101,6 +105,17 @@ defmodule MdstoreWeb.ProductsLive.Show do
 
   defp current_user(socket), do: socket.assigns.current_scope.user
 
+  defp stripe_public_key(), do: Application.get_env(:stripity_stripe, :publishable_key)
+
+  defp redirect_to_login(socket) do
+    socket =
+      socket
+      |> put_flash(:info, "You need to first log in, before starting a purchase")
+      |> push_navigate(to: ~p"/users/log-in?next=/products/#{socket.assigns.product.id}")
+
+    {:noreply, socket}
+  end
+
   defp get_or_create_customer(email) do
     case Payments.get_customer_by_email(email) do
       {:ok, %{data: [customer]}} -> {:ok, customer}
@@ -108,8 +123,6 @@ defmodule MdstoreWeb.ProductsLive.Show do
       {:error, reason} -> {:error, reason}
     end
   end
-
-  defp stripe_public_key(), do: Application.get_env(:stripity_stripe, :publishable_key)
 
   attr :product, Product, required: true
   attr :intent, PaymentIntent, required: false

@@ -1,7 +1,7 @@
 defmodule MdstoreWeb.ProductsLive.IndexTest do
-  use MdstoreWeb.ConnCase, async: true
   import Mdstore.ProductsFixtures
   import Phoenix.LiveViewTest
+  use MdstoreWeb.ConnCase, async: true
 
   describe "product list page" do
     test "shows an empty page", %{conn: conn} do

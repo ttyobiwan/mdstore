@@ -41,3 +41,6 @@ config :phoenix_live_view,
 
 # Configures file storage for uploads
 config :mdstore, :file_storage, Mdstore.Files.Storages.Test
+
+# Configures payment processor
+config :mdstore, :payment_processor, Mdstore.Payments.Test
