@@ -12,6 +12,20 @@ defmodule Mdstore.Carts do
   import Ecto.Query
 
   @doc """
+  Gets an existing cart for a user.
+
+  ## Parameters
+  - `user` - The user struct to get a cart for
+
+  ## Returns
+  - `{:ok, cart}` - The existing cart
+  - `nil` - If cart does not exist
+  """
+  def get_cart(user) do
+    Repo.one(from c in Cart, where: c.user_id == ^user.id, limit: 1)
+  end
+
+  @doc """
   Gets an existing cart for a user or creates a new one if none exists.
 
   ## Parameters
@@ -22,7 +36,7 @@ defmodule Mdstore.Carts do
   - `{:error, changeset}` - If cart creation fails
   """
   def get_or_create_cart(user) do
-    case Repo.one(from c in Cart, where: c.user_id == ^user.id, limit: 1) do
+    case get_cart(user) do
       nil -> Repo.insert(Cart.changeset(%Cart{}, %{user_id: user.id}))
       cart -> {:ok, cart}
     end
