@@ -1,5 +1,6 @@
 defmodule MdstoreWeb.ProductsLive.Show do
   import MdstoreWeb.MdComponents
+  alias Mdstore.Carts
   alias Mdstore.Payments
   alias Mdstore.Images
   alias Mdstore.Products
@@ -28,6 +29,40 @@ defmodule MdstoreWeb.ProductsLive.Show do
           |> assign(:intent, nil)
 
         {:ok, socket}
+    end
+  end
+
+  def handle_event("add_to_cart", _params, socket)
+      when socket.assigns.current_scope == nil or socket.assigns.current_scope.user == nil,
+      do: redirect_to_login(socket)
+
+  def handle_event("add_to_cart", _params, socket) do
+    with {:ok, cart} <- Carts.get_or_create_cart(current_user(socket)),
+         :ok <- Carts.add_to_cart(cart, socket.assigns.product) do
+      socket = put_flash(socket, :info, "Product added to cart successfully")
+      {:noreply, socket}
+    else
+      {:error, :product_already_in_cart} ->
+        socket =
+          put_flash(
+            socket,
+            :info,
+            "Product is already in the cart"
+          )
+
+        {:noreply, socket}
+
+      {:error, reason} ->
+        Logger.error("Error when adding product to cart: #{inspect(reason)}")
+
+        socket =
+          put_flash(
+            socket,
+            :error,
+            "Something went wrong when adding product to the cart. Please try again."
+          )
+
+        {:noreply, socket}
     end
   end
 
@@ -130,16 +165,25 @@ defmodule MdstoreWeb.ProductsLive.Show do
 
   def actions(assigns) do
     ~H"""
-    <div class="border-t border-base-content/20 pt-6 space-y-4">
+    <div class="border-t border-base-content/20 pt-6">
       <.md_button
         :if={@product.quantity > 0 and !@intent}
         disabled={@loading}
         phx-disable-with="Loading..."
-        variant="primary"
-        size="lg"
+        size="md"
         phx-click="start_purchase"
       >
-        <.icon name="hero-shopping-cart" class="w-5 h-5 mr-2" /> Buy Now
+        <.icon name="hero-currency-dollar" class="w-5 h-5 mr-2" /> Buy now
+      </.md_button>
+
+      <.md_button
+        :if={@product.quantity > 0 and !@intent}
+        disabled={@loading}
+        phx-disable-with="Loading..."
+        size="md"
+        phx-click="add_to_cart"
+      >
+        <.icon name="hero-shopping-cart" class="w-5 h-5 mr-2" /> Add to cart
       </.md_button>
 
       <.md_button :if={@product.quantity == 0} variant="outline" size="lg">

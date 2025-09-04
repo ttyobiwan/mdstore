@@ -37,13 +37,17 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - [x] Product detail view
 - [x] Product pages tests
 - [ ] Cart
-- [ ] 404 page
-- [ ] Django-like admin navigation
-- [ ] Search in admin
-- [ ] Working auth
+- [ ] Cart page
+- [ ] Cart checkout
+- [ ] Cart tests
+- [x] Working auth
 - [ ] Purchase models
 - [x] Payments
 - [x] Fix theme switch not being a switch
+
+- [ ] 404 page
+- [ ] Django-like admin navigation
+- [ ] Search in admin
 
 ## Future
 
