@@ -5,7 +5,8 @@ defmodule Mdstore.Carts.CartItem do
   schema "cart_items" do
     field :quantity, :integer, default: 1
     field :cart_id, :id
-    field :product_id, :id
+
+    belongs_to :product, Mdstore.Products.Product
 
     timestamps(type: :utc_datetime)
   end

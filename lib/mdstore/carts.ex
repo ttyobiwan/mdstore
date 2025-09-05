@@ -22,7 +22,12 @@ defmodule Mdstore.Carts do
   - `nil` - If cart does not exist
   """
   def get_cart(user) do
-    Repo.one(from c in Cart, where: c.user_id == ^user.id, limit: 1)
+    Repo.one(
+      from c in Cart,
+        where: c.user_id == ^user.id,
+        limit: 1,
+        preload: [:products, products: :front_image]
+    )
   end
 
   @doc """
@@ -73,6 +78,24 @@ defmodule Mdstore.Carts do
           {:error, changeset}
         end
     end
+  end
+
+  @doc """
+  Removes a product from a cart.
+
+  ## Parameters
+  - `cart` - The cart to remove the product from
+  - `product` - The product to remove
+
+  ## Returns
+  - `nil` - Always returns nil after deletion
+  """
+  def remove_from_cart(cart, product) do
+    Repo.delete_all(
+      from i in CartItem, where: i.cart_id == ^cart.id and i.product_id == ^product.id
+    )
+
+    nil
   end
 
   # Check if changeset contains unique constraint error for any of the given fields

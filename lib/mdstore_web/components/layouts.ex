@@ -54,7 +54,7 @@ defmodule MdstoreWeb.Layouts do
           <.link navigate="/wishlist" class="btn btn-ghost btn-square lg:hidden">
             <.icon name="hero-heart" class="size-5" />
           </.link>
-          <.link navigate={~p"/cart"} class="btn btn-ghost btn-square lg:hidden">
+          <.link href={~p"/cart"} class="btn btn-ghost btn-square lg:hidden">
             <.icon name="hero-shopping-cart" class="size-5" />
           </.link>
           
@@ -91,7 +91,7 @@ defmodule MdstoreWeb.Layouts do
             <.link navigate="/wishlist" class="btn btn-ghost btn-square">
               <.icon name="hero-heart" class="size-5" />
             </.link>
-            <.link navigate={~p"/cart"} class="btn btn-ghost btn-square">
+            <.link href={~p"/cart"} class="btn btn-ghost btn-square">
               <.icon name="hero-shopping-cart" class="size-5" />
             </.link>
 
