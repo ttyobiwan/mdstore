@@ -12,8 +12,18 @@ defmodule MdstoreWeb.UserSessionController do
     create(conn, params, "Welcome back!")
   end
 
+  defp maybe_store_next_path(conn, params) do
+    if next_path = params["next"] do
+      put_session(conn, :user_return_to, next_path)
+    else
+      conn
+    end
+  end
+
   # magic link login
-  defp create(conn, %{"user" => %{"token" => token} = user_params}, info) do
+  defp create(conn, %{"user" => %{"token" => token} = user_params} = params, info) do
+    conn = maybe_store_next_path(conn, params)
+
     case Accounts.login_user_by_magic_link(token) do
       {:ok, {user, tokens_to_disconnect}} ->
         UserAuth.disconnect_sessions(tokens_to_disconnect)
@@ -30,7 +40,9 @@ defmodule MdstoreWeb.UserSessionController do
   end
 
   # email + password login
-  defp create(conn, %{"user" => user_params}, info) do
+  defp create(conn, %{"user" => user_params} = params, info) do
+    conn = maybe_store_next_path(conn, params)
+
     %{"email" => email, "password" => password} = user_params
 
     if user = Accounts.get_user_by_email_and_password(email, password) do

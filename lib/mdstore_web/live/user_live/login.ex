@@ -38,7 +38,7 @@ defmodule MdstoreWeb.UserLive.Login do
           :let={f}
           for={@form}
           id="login_form_magic"
-          action={~p"/users/log-in"}
+          action={if @next_path, do: ~p"/users/log-in?next=#{@next_path}", else: ~p"/users/log-in"}
           phx-submit="submit_magic"
         >
           <.input
@@ -61,7 +61,7 @@ defmodule MdstoreWeb.UserLive.Login do
           :let={f}
           for={@form}
           id="login_form_password"
-          action={~p"/users/log-in"}
+          action={if @next_path, do: ~p"/users/log-in?next=#{@next_path}", else: ~p"/users/log-in"}
           phx-submit="submit_password"
           phx-trigger-action={@trigger_submit}
         >
@@ -91,14 +91,14 @@ defmodule MdstoreWeb.UserLive.Login do
     """
   end
 
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     email =
       Phoenix.Flash.get(socket.assigns.flash, :email) ||
         get_in(socket.assigns, [:current_scope, Access.key(:user), Access.key(:email)])
 
     form = to_form(%{"email" => email}, as: "user")
 
-    {:ok, assign(socket, form: form, trigger_submit: false)}
+    {:ok, assign(socket, form: form, trigger_submit: false, next_path: params["next"])}
   end
 
   def handle_event("submit_password", _params, socket) do
@@ -107,10 +107,14 @@ defmodule MdstoreWeb.UserLive.Login do
 
   def handle_event("submit_magic", %{"user" => %{"email" => email}}, socket) do
     if user = Accounts.get_user_by_email(email) do
-      Accounts.deliver_login_instructions(
-        user,
-        &url(~p"/users/log-in/#{&1}")
-      )
+      magic_link_fn =
+        if socket.assigns.next_path do
+          &url(~p"/users/log-in/#{&1}?next=#{socket.assigns.next_path}")
+        else
+          &url(~p"/users/log-in/#{&1}")
+        end
+
+      Accounts.deliver_login_instructions(user, magic_link_fn)
     end
 
     info =

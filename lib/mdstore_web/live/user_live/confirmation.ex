@@ -17,7 +17,11 @@ defmodule MdstoreWeb.UserLive.Confirmation do
           id="confirmation_form"
           phx-mounted={JS.focus_first()}
           phx-submit="submit"
-          action={~p"/users/log-in?_action=confirmed"}
+          action={
+            if @next_path,
+              do: ~p"/users/log-in?_action=confirmed&next=#{@next_path}",
+              else: ~p"/users/log-in?_action=confirmed"
+          }
           phx-trigger-action={@trigger_submit}
         >
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
@@ -40,7 +44,7 @@ defmodule MdstoreWeb.UserLive.Confirmation do
           id="login_form"
           phx-submit="submit"
           phx-mounted={JS.focus_first()}
-          action={~p"/users/log-in"}
+          action={if @next_path, do: ~p"/users/log-in?next=#{@next_path}", else: ~p"/users/log-in"}
           phx-trigger-action={@trigger_submit}
         >
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
@@ -71,11 +75,12 @@ defmodule MdstoreWeb.UserLive.Confirmation do
     """
   end
 
-  def mount(%{"token" => token}, _session, socket) do
+  def mount(%{"token" => token} = params, _session, socket) do
     if user = Accounts.get_user_by_magic_link_token(token) do
       form = to_form(%{"token" => token}, as: "user")
 
-      {:ok, assign(socket, user: user, form: form, trigger_submit: false),
+      {:ok,
+       assign(socket, user: user, form: form, trigger_submit: false, next_path: params["next"]),
        temporary_assigns: [form: nil]}
     else
       {:ok,
