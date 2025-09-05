@@ -128,7 +128,7 @@ defmodule MdstoreWeb.ProductsLive.Index do
     <!-- Products Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
         <div :for={{dom_id, product} <- @streams.products} id={dom_id}>
-          <.link navigate={~p"/products/#{product.id}"} class="group block">
+          <.link navigate={~p"/products/#{product.id}?utm-source=shop"} class="group block">
             <div class="border border-base-content/20 bg-base-100 hover:border-base-content/40 transition-all duration-200 h-full flex flex-col">
               <!-- Product Image -->
               <div class="aspect-square bg-base-200 relative overflow-hidden">

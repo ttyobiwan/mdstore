@@ -1,4 +1,5 @@
 defmodule MdstoreWeb.UserLive.Registration do
+  alias MdstoreWeb.UserAuth
   use MdstoreWeb, :live_view
 
   alias Mdstore.Accounts
@@ -66,7 +67,7 @@ defmodule MdstoreWeb.UserLive.Registration do
            :info,
            "An email was sent to #{user.email}, please access it to confirm your account."
          )
-         |> push_navigate(to: ~p"/users/log-in")}
+         |> UserAuth.push_navigate_to_login()}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}

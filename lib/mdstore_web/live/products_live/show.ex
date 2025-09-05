@@ -1,5 +1,6 @@
 defmodule MdstoreWeb.ProductsLive.Show do
   import MdstoreWeb.MdComponents
+  alias MdstoreWeb.UserAuth
   alias Mdstore.Checkouts
   alias Mdstore.Carts
   alias Mdstore.Payments
@@ -31,6 +32,10 @@ defmodule MdstoreWeb.ProductsLive.Show do
 
         {:ok, socket}
     end
+  end
+
+  def handle_params(_params, uri, socket) do
+    {:noreply, assign(socket, :uri, uri)}
   end
 
   def handle_event("add_to_cart", _params, socket)
@@ -190,7 +195,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
     socket =
       socket
       |> put_flash(:info, "You need to first log in, before starting a purchase")
-      |> push_navigate(to: ~p"/users/log-in?next=/products/#{socket.assigns.product.id}")
+      |> UserAuth.push_navigate_to_login()
 
     {:noreply, socket}
   end
@@ -306,7 +311,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
           </li>
         </ol>
 
-        <.md_button navigate={~p"/products"} variant="ghost" size="md">
+        <.md_button phx-click={JS.dispatch("go-back")} variant="ghost" size="md">
           <.icon name="hero-arrow-left" class="w-4 h-4 mr-2" /> Back
         </.md_button>
       </nav>

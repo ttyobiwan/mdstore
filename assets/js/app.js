@@ -171,3 +171,7 @@ if (process.env.NODE_ENV === "development") {
     },
   );
 }
+
+window.addEventListener("go-back", () => {
+  history.back();
+});

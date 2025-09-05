@@ -1,4 +1,5 @@
 defmodule MdstoreWeb.UserLive.Login do
+  alias MdstoreWeb.UserAuth
   use MdstoreWeb, :live_view
 
   alias Mdstore.Accounts
@@ -123,7 +124,7 @@ defmodule MdstoreWeb.UserLive.Login do
     {:noreply,
      socket
      |> put_flash(:info, info)
-     |> push_navigate(to: ~p"/users/log-in")}
+     |> UserAuth.push_navigate_to_login()}
   end
 
   defp local_mail_adapter? do

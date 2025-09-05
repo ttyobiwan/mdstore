@@ -288,6 +288,28 @@ defmodule MdstoreWeb.UserAuth do
     |> maybe_require_admin()
   end
 
+  @doc """
+  Navigates a LiveView socket to the login page.
+
+  If the socket has a URI assigned, it will be included as a `next` parameter
+  to redirect back to after successful login. If no URI is present, navigates
+  directly to the login page.
+  """
+  def push_navigate_to_login(socket) do
+    case socket.assigns[:uri] do
+      uri when uri in [nil, ""] ->
+        Phoenix.LiveView.push_navigate(socket, to: ~p"/users/log-in")
+
+      uri ->
+        parsed_uri = URI.parse(uri)
+
+        path_with_query =
+          parsed_uri.path <> if parsed_uri.query, do: "?" <> parsed_uri.query, else: ""
+
+        Phoenix.LiveView.push_navigate(socket, to: ~p"/users/log-in?next=#{path_with_query}")
+    end
+  end
+
   defp maybe_require_admin(%{halted: true} = conn), do: conn
 
   defp maybe_require_admin(conn) do

@@ -154,7 +154,7 @@ defmodule MdstoreWeb.ProductsLive.ShowTest do
 
       lv |> element("button", "Buy now") |> render_click()
 
-      assert_redirected(lv, ~p"/users/log-in?next=/products/#{product.id}")
+      assert_redirected(lv, ~p"/users/log-in?next=#{URI.encode("/products/#{product.id}")}")
     end
 
     test "redirects to login when trying to add to cart", %{conn: conn} do
@@ -163,7 +163,7 @@ defmodule MdstoreWeb.ProductsLive.ShowTest do
 
       lv |> element("button", "Add to cart") |> render_click()
 
-      assert_redirected(lv, ~p"/users/log-in?next=/products/#{product.id}")
+      assert_redirected(lv, ~p"/users/log-in?next=#{URI.encode("/products/#{product.id}")}")
     end
 
     test "shows both buttons for unauthenticated users", %{conn: conn} do
