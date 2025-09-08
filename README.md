@@ -20,6 +20,12 @@ Then, take the following steps to start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
+## Next
+
+- [ ] Cart checkout
+- [ ] Featured products
+- [ ] Cache featured products
+
 ## Backlog
 
 - [x] Admin users
@@ -36,12 +42,11 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - [x] Product list view
 - [x] Product detail view
 - [x] Product pages tests
-- [ ] Cart
-- [ ] Cart page
-- [ ] Cart checkout
-- [ ] Cart tests
+- [x] Cart
+- [x] Cart page
+- [x] Cart tests
 - [x] Working auth
-- [ ] Purchase models
+- [x] Purchase models
 - [x] Payments
 - [x] Fix theme switch not being a switch
 
@@ -52,7 +57,6 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 ## Future
 
 - [ ] Wishlist
-- [ ] Cart
 - [ ] Coupons
 - [ ] Notifications
 - [ ] Oban job to clean up orphaned images

@@ -31,6 +31,22 @@ defmodule Mdstore.Carts do
   end
 
   @doc """
+  Creates a new cart.
+
+  ## Parameters
+  - `attrs` - A map of attributes for the cart
+
+  ## Returns
+  - `{:ok, cart}` - If the cart was successfully created
+  - `{:error, changeset}` - If validation fails
+  """
+  def create_cart(attrs) do
+    %Cart{}
+    |> Cart.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
   Gets an existing cart for a user or creates a new one if none exists.
 
   ## Parameters
@@ -42,7 +58,7 @@ defmodule Mdstore.Carts do
   """
   def get_or_create_cart(user) do
     case get_cart(user) do
-      nil -> Repo.insert(Cart.changeset(%Cart{}, %{user_id: user.id}))
+      nil -> create_cart(%{user_id: user.id})
       cart -> {:ok, cart}
     end
   end

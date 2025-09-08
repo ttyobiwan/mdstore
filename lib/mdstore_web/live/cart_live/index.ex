@@ -35,6 +35,10 @@ defmodule MdstoreWeb.CartLive.Index do
     |> Decimal.to_string()
   end
 
+  defp format_price(price) do
+    :erlang.float_to_binary(price, decimals: 2)
+  end
+
   def render(assigns) do
     ~H"""
     <div class="max-w-4xl mx-auto p-4">
@@ -68,7 +72,7 @@ defmodule MdstoreWeb.CartLive.Index do
             </div>
           </:col>
           <:col :let={product} label="Price">
-            ${Decimal.from_float(product.price) |> Decimal.to_string()}
+            ${format_price(product.price)}
           </:col>
           <:action :let={product}>
             <.md_button
@@ -89,7 +93,7 @@ defmodule MdstoreWeb.CartLive.Index do
           </div>
         </div>
         <div class="flex justify-between items-center mt-6">
-          <.md_button href={~p"/products"}>
+          <.md_button phx-click={JS.dispatch("go-back")}>
             ← Continue Shopping
           </.md_button>
           <.md_button variant="primary" navigate="/checkout">
