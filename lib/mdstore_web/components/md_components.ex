@@ -144,14 +144,17 @@ defmodule MdstoreWeb.MdComponents do
       "xl" => "btn-xl"
     }
 
+    base_classes = [
+      "btn rounded-none",
+      Map.fetch!(variants, assigns[:variant]),
+      Map.fetch!(sizes, assigns[:size])
+    ]
+
     assigns =
-      assign_new(assigns, :class, fn ->
-        [
-          "btn rounded-none",
-          Map.fetch!(variants, assigns[:variant]),
-          Map.fetch!(sizes, assigns[:size])
-        ]
-      end)
+      assign(assigns, :class, [
+        base_classes,
+        assigns[:class]
+      ])
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
       ~H"""

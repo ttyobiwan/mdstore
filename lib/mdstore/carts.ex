@@ -18,13 +18,13 @@ defmodule Mdstore.Carts do
   - `user` - The user struct to get a cart for
 
   ## Returns
-  - `{:ok, cart}` - The existing cart
+  - `{:ok, cart}` - The existing and open cart
   - `nil` - If cart does not exist
   """
   def get_cart(user) do
     Repo.one(
       from c in Cart,
-        where: c.user_id == ^user.id,
+        where: c.user_id == ^user.id and c.is_open == true,
         limit: 1,
         preload: [:products, products: :front_image]
     )
@@ -112,6 +112,22 @@ defmodule Mdstore.Carts do
     )
 
     nil
+  end
+
+  @doc """
+  Closes a cart by setting is_open to false.
+
+  ## Parameters
+  - `cart` - The cart to close
+
+  ## Returns
+  - `{:ok, cart}` - If the cart was successfully closed
+  - `{:error, changeset}` - If validation fails
+  """
+  def close_cart(cart) do
+    cart
+    |> Cart.open_changeset(%{is_open: false})
+    |> Repo.update()
   end
 
   # Check if changeset contains unique constraint error for any of the given fields

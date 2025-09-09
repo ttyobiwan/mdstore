@@ -40,6 +40,7 @@ defmodule MdstoreWeb.Router do
       layout: {MdstoreWeb.Layouts, :default},
       on_mount: [{MdstoreWeb.UserAuth, :require_authenticated}] do
       live "/cart", CartLive.Index
+      live "/checkout", CheckoutLive.Index
     end
   end
 

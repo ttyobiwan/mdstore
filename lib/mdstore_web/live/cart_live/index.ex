@@ -96,7 +96,7 @@ defmodule MdstoreWeb.CartLive.Index do
           <.md_button phx-click={JS.dispatch("go-back")}>
             ← Continue Shopping
           </.md_button>
-          <.md_button variant="primary" navigate="/checkout">
+          <.md_button variant="primary" navigate={~p"/checkout"}>
             Proceed to Checkout →
           </.md_button>
         </div>

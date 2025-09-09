@@ -13,7 +13,7 @@ defmodule Mdstore.Repo.Migrations.CreateCheckouts do
     end
 
     create index(:checkouts, [:user_id])
-    create index(:checkouts, [:product_id])
-    create unique_index(:checkouts, [:cart_id], where: "cart_id IS NOT NULL")
+    create index(:checkouts, [:product_id], where: "product_id IS NOT NULL")
+    create index(:checkouts, [:cart_id], where: "cart_id IS NOT NULL")
   end
 end

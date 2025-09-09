@@ -11,6 +11,24 @@ defmodule Mdstore.Payments do
   @payment_processor Application.compile_env(:mdstore, :payment_processor)
 
   @doc """
+  Retrieves an existing customer by email, or creates a new one if not found.
+
+  ## Parameters
+    * `email` - The email address of the customer
+
+  ## Returns
+  Returns `{:ok, customer}` if the customer exists or was successfully created,
+  or `{:error, reason}` if an error occurred.
+  """
+  def get_or_create_customer(email) do
+    case get_customer_by_email(email) do
+      {:ok, %{data: [customer]}} -> {:ok, customer}
+      {:ok, %{data: []}} -> create_customer(email)
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
   Retrieves a customer by their email address.
 
   ## Parameters

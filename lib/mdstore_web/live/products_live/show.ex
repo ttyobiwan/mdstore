@@ -84,7 +84,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
              user_id: current_user(socket).id,
              product_id: socket.assigns.product.id
            }),
-         {:ok, customer} <- get_or_create_customer(current_user(socket).email),
+         {:ok, customer} <- Payments.get_or_create_customer(current_user(socket).email),
          {:ok, intent} <-
            Payments.create_payment_intent(
              trunc(socket.assigns.product.price * 100),
@@ -198,14 +198,6 @@ defmodule MdstoreWeb.ProductsLive.Show do
       |> UserAuth.push_navigate_to_login()
 
     {:noreply, socket}
-  end
-
-  defp get_or_create_customer(email) do
-    case Payments.get_customer_by_email(email) do
-      {:ok, %{data: [customer]}} -> {:ok, customer}
-      {:ok, %{data: []}} -> Payments.create_customer(email)
-      {:error, reason} -> {:error, reason}
-    end
   end
 
   attr :product, Product, required: true

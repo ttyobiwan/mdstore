@@ -35,7 +35,7 @@ defmodule Mdstore.Checkouts do
   - `{:ok, checkout}` on success
   - `{:error, changeset}` on failure
   """
-  def update_status(checkout, status) do
+  def update_status(%Checkout{} = checkout, status) do
     checkout
     |> Checkout.status_changeset(%{status: status})
     |> Repo.update()

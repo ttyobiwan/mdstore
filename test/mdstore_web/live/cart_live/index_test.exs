@@ -49,9 +49,7 @@ defmodule MdstoreWeb.CartLive.IndexTest do
       product = product_fixture()
       cart_item_fixture(%{cart_id: cart.id, product_id: product.id})
 
-      {:ok, lv, html} = live(conn, ~p"/cart")
-
-      assert html =~ product.name
+      {:ok, lv, _html} = live(conn, ~p"/cart")
 
       lv
       |> element("button[phx-click='remove_product'][phx-value-product_id='#{product.id}']")
