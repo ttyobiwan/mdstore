@@ -3,6 +3,7 @@ defmodule MdstoreWeb.CartLive.IndexTest do
   import Phoenix.LiveViewTest
   import Mdstore.AccountsFixtures
   import Mdstore.CartsFixtures
+
   use MdstoreWeb.ConnCase, async: true
 
   describe "shopping cart page" do

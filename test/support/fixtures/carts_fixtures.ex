@@ -6,6 +6,7 @@ defmodule Mdstore.CartsFixtures do
   def valid_cart_attributes(attrs \\ %{}) do
     attrs
     |> Map.put_new_lazy(:user_id, fn -> AccountsFixtures.user_fixture().id end)
+    |> Enum.into(%{is_open: true})
   end
 
   def valid_cart_item_attributes(attrs \\ %{}) do

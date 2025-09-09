@@ -22,7 +22,6 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ## Next
 
-- [ ] Cart checkout
 - [ ] Featured products
 - [ ] Cache featured products
 - [ ] Orders
@@ -50,6 +49,8 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - [x] Purchase models
 - [x] Payments
 - [x] Fix theme switch not being a switch
+- [x] Cart checkout
+- [x] Checkout tests
 
 - [ ] 404 page
 - [ ] Django-like admin navigation
