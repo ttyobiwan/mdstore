@@ -95,4 +95,11 @@ defmodule Mdstore.Products do
     end)
     |> Repo.transaction()
   end
+
+  @doc """
+  Gets all featured products.
+  """
+  def get_featured_products() do
+    Repo.all(from p in Product, where: p.is_featured == true, preload: :front_image)
+  end
 end

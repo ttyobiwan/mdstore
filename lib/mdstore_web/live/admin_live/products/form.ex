@@ -49,6 +49,7 @@ defmodule MdstoreWeb.AdminLive.Products.Form do
             <.md_input field={@form[:description]} type="textarea" label="Description" />
             <.md_input field={@form[:quantity]} type="number" label="Quantity" />
             <.md_input field={@form[:price]} type="number" label="Price" step="0.01" />
+            <.md_input field={@form[:is_featured]} type="checkbox" label="Is Featured" />
 
             <div class="form-control">
               <label class="label">

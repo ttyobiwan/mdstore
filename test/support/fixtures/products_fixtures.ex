@@ -11,7 +11,8 @@ defmodule Mdstore.ProductsFixtures do
       name: unique_product_name(),
       description: "test description",
       quantity: 1,
-      price: 1.0
+      price: 1.0,
+      is_featured: false
     })
   end
 

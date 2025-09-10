@@ -1,6 +1,24 @@
 defmodule MdstoreWeb.HomeLive.Index do
-  use MdstoreWeb, :live_view
+  alias Mdstore.Images
+  alias Phoenix.LiveView.AsyncResult
+  alias Mdstore.Products
   import MdstoreWeb.MdComponents
+
+  use MdstoreWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> assign(:page_title, "Store")
+      |> assign(:featured_products, AsyncResult.loading())
+      |> start_async(:get_featured_products, fn -> Products.get_featured_products() end)
+
+    {:ok, socket}
+  end
+
+  def handle_async(:get_featured_products, {:ok, products}, socket) do
+    {:noreply, assign(socket, :featured_products, AsyncResult.ok(products))}
+  end
 
   def render(assigns) do
     ~H"""
@@ -82,74 +100,44 @@ defmodule MdstoreWeb.HomeLive.Index do
             Discover our most popular tools and resources for developers and creators.
           </p>
         </div>
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <.link
-            navigate="/product/1"
-            class="card bg-base-100 border border-base-content/20 rounded-none hover:shadow-lg transition-shadow"
-          >
-            <figure class="px-4 pt-4">
-              <img
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
-                alt="Markdown Editor"
-                class="w-full h-48 object-cover"
-              />
-            </figure>
-            <div class="card-body">
-              <h3 class="card-title text-base-content">Markdown Editor</h3>
-              <p class="text-base-content/70 font-semibold">$29.99</p>
-            </div>
-          </.link>
+        <div class="flex flex-wrap gap-6 justify-center">
+          <.async_result :let={products} assign={@featured_products}>
+            <:loading>
+              <div class="flex justify-center basis-full">
+                <div class="flex items-center gap-3">
+                  <span class="loading loading-spinner loading-md"></span>
+                  <span class="text-base-content/60">Loading featured products...</span>
+                </div>
+              </div>
+            </:loading>
 
-          <.link
-            navigate="/product/2"
-            class="card bg-base-100 border border-base-content/20 rounded-none hover:shadow-lg transition-shadow"
-          >
-            <figure class="px-4 pt-4">
-              <img
-                src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop"
-                alt="Code Theme Pack"
-                class="w-full h-48 object-cover"
-              />
-            </figure>
-            <div class="card-body">
-              <h3 class="card-title text-base-content">Code Theme Pack</h3>
-              <p class="text-base-content/70 font-semibold">$19.99</p>
-            </div>
-          </.link>
+            <:failed :let={_failure}>
+              <div class="basis-full">
+                <div class="alert alert-error">
+                  <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
+                  <span>Failed to load featured products</span>
+                </div>
+              </div>
+            </:failed>
 
-          <.link
-            navigate="/product/3"
-            class="card bg-base-100 border border-base-content/20 rounded-none hover:shadow-lg transition-shadow"
-          >
-            <figure class="px-4 pt-4">
-              <img
-                src="https://images.unsplash.com/photo-1629904853893-c2c8981a1dc5?w=400&h=300&fit=crop"
-                alt="CLI Tools"
-                class="w-full h-48 object-cover"
-              />
-            </figure>
-            <div class="card-body">
-              <h3 class="card-title text-base-content">CLI Tools</h3>
-              <p class="text-base-content/70 font-semibold">$39.99</p>
-            </div>
-          </.link>
-
-          <.link
-            navigate="/product/4"
-            class="card bg-base-100 border border-base-content/20 rounded-none hover:shadow-lg transition-shadow"
-          >
-            <figure class="px-4 pt-4">
-              <img
-                src="https://images.unsplash.com/photo-1544256718-3bcf237f3974?w=400&h=300&fit=crop"
-                alt="Documentation Kit"
-                class="w-full h-48 object-cover"
-              />
-            </figure>
-            <div class="card-body">
-              <h3 class="card-title text-base-content">Documentation Kit</h3>
-              <p class="text-base-content/70 font-semibold">$24.99</p>
-            </div>
-          </.link>
+            <.link
+              :for={product <- products}
+              navigate={~p"/products/#{product.id}"}
+              class="card bg-base-100 border border-base-content/20 rounded-none hover:shadow-lg transition-shadow basis-full md:basis-[calc(50%-12px)] lg:basis-[calc(25%-18px)]"
+            >
+              <figure class="px-4 pt-4">
+                <img
+                  src={Images.get_image_link(product.front_image)}
+                  alt={product.name}
+                  class="w-full h-48 object-cover"
+                />
+              </figure>
+              <div class="card-body">
+                <h3 class="card-title text-base-content">{product.name}</h3>
+                <p class="text-base-content/70 font-semibold">${product.price}</p>
+              </div>
+            </.link>
+          </.async_result>
         </div>
       </div>
     </div>

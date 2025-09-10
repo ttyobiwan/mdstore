@@ -363,6 +363,66 @@ defmodule MdstoreWeb.MdComponents do
     """
   end
 
+  def md_input(%{type: "checkbox"} = assigns) do
+    variants = %{
+      "neutral" => "checkbox-neutral",
+      "primary" => "checkbox-primary",
+      "secondary" => "checkbox-secondary",
+      "accent" => "checkbox-accent",
+      "info" => "checkbox-info",
+      "success" => "checkbox-success",
+      "warning" => "checkbox-warning",
+      "error" => "checkbox-error",
+      "ghost" => "checkbox-ghost"
+    }
+
+    sizes = %{
+      "xs" => "checkbox-xs",
+      "sm" => "checkbox-sm",
+      "md" => "checkbox-md",
+      "lg" => "checkbox-lg",
+      "xl" => "checkbox-xl"
+    }
+
+    assigns =
+      assigns
+      |> assign_new(:id, fn -> assigns[:name] end)
+      |> assign_new(:checked, fn ->
+        Phoenix.HTML.Form.normalize_value("checkbox", assigns[:value])
+      end)
+      |> assign(
+        :class,
+        assigns[:class] ||
+          [
+            "checkbox rounded-none border-base-content/20",
+            Map.fetch!(variants, assigns[:variant]),
+            Map.fetch!(sizes, assigns[:size]),
+            assigns[:errors] != [] && "checkbox-error"
+          ]
+      )
+
+    ~H"""
+    <div class="form-control">
+      <label class="cursor-pointer label justify-start gap-3">
+        <input type="hidden" name={@name} value="false" disabled={@rest[:disabled]} />
+        <input
+          type="checkbox"
+          id={@id}
+          name={@name}
+          value="true"
+          checked={@checked}
+          class={@class}
+          {@rest}
+        />
+        <span :if={@label} class="label-text text-base-content">{@label}</span>
+      </label>
+      <div :if={@errors != []} class="label">
+        <span :for={msg <- @errors} class="label-text-alt text-error">{msg}</span>
+      </div>
+    </div>
+    """
+  end
+
   def md_input(assigns) do
     variants = %{
       "neutral" => "input-neutral",

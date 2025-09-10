@@ -7,6 +7,7 @@ defmodule Mdstore.Products.Product do
     field :description, :string
     field :quantity, :integer
     field :price, :float
+    field :is_featured, :boolean
 
     belongs_to :front_image, Mdstore.Files.Image
 
@@ -16,8 +17,8 @@ defmodule Mdstore.Products.Product do
   @doc false
   def changeset(product, attrs) do
     product
-    |> cast(attrs, [:name, :description, :quantity, :price, :front_image_id])
-    |> validate_required([:name, :description, :quantity, :price, :front_image_id])
+    |> cast(attrs, [:name, :description, :quantity, :price, :is_featured, :front_image_id])
+    |> validate_required([:name, :description, :quantity, :price, :is_featured, :front_image_id])
     |> validate_number(:quantity, greater_than_or_equal_to: 0)
     |> validate_number(:price, greater_than_or_equal_to: 0)
   end
