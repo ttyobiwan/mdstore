@@ -9,6 +9,7 @@ To get started, first prepare an `.env` file with all environment variables:
 ```
 export STRIPE_SECRET=
 export STRIPE_PUBLISHABLE_KEY=
+export REDIS_HOST=localhost
 ```
 
 Then, take the following steps to start your Phoenix server:
@@ -22,8 +23,6 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ## Next
 
-- [ ] Featured products
-- [ ] Cache featured products
 - [ ] Orders
 
 ## Backlog
@@ -51,6 +50,8 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - [x] Fix theme switch not being a switch
 - [x] Cart checkout
 - [x] Checkout tests
+- [x] Featured products
+- [x] Cache featured products
 
 - [ ] 404 page
 - [ ] Django-like admin navigation

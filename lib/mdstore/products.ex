@@ -3,6 +3,7 @@ defmodule Mdstore.Products do
   The products context.
   """
 
+  alias Mdstore.Cache
   alias Mdstore.Images
   alias Mdstore.Repo
   alias Mdstore.Products.Product
@@ -97,9 +98,33 @@ defmodule Mdstore.Products do
   end
 
   @doc """
-  Gets all featured products.
+  Gets all featured products, prioritizing cached results.
+
+  ## Returns
+
+  A list of `%Product{}` structs with `:front_image` preloaded, or an empty
+  list if no featured products exist.
+
+  ## Examples
+
+      iex> get_featured_products()
+      [%Product{id: 1, name: "Featured Product", is_featured: true, front_image: %Image{}}, ...]
+
+      iex> get_featured_products()
+      []
+
   """
   def get_featured_products() do
-    Repo.all(from p in Product, where: p.is_featured == true, preload: :front_image)
+    case Cache.get(:featured_products) do
+      {:ok, products} when products not in [nil, []] ->
+        products
+
+      _ ->
+        products =
+          Repo.all(from p in Product, where: p.is_featured == true, preload: :front_image)
+
+        Cache.set(:featured_products, products)
+        products
+    end
   end
 end

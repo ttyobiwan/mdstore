@@ -83,6 +83,19 @@ config :stripity_stripe,
 
 config :mdstore, :payment_processor, Mdstore.Payments.Stripe
 
+# Configurations for cache backend
+
+# Configures Cachex
+config :mdstore, :cache_backend, Mdstore.Cache.Cachex
+config :mdstore, :cachex, name: :cachex_default
+
+# Configures Redis
+# config :mdstore, :cache_backend, Mdstore.Cache.Redis
+# config :mdstore, :redis,
+#   name: :redis_default,
+#   host: System.get_env("REDIS_HOST"),
+#   port: 6379
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

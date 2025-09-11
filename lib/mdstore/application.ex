@@ -12,6 +12,7 @@ defmodule Mdstore.Application do
       Mdstore.Repo,
       {DNSCluster, query: Application.get_env(:mdstore, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Mdstore.PubSub},
+      Application.get_env(:mdstore, :cache_backend).child_spec(),
       # Start a worker by calling: Mdstore.Worker.start_link(arg)
       # {Mdstore.Worker, arg},
       # Start to serve requests, typically the last entry

@@ -61,7 +61,11 @@ defmodule Mdstore.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
-      {:stripity_stripe, "~> 2.0"}
+      {:stripity_stripe, "~> 2.0"},
+      {:cachex, "~> 4.1"}
+      # If you want to use redis instead of cachex
+      # {:redix, "~> 1.5"},
+      # {:castore, "~> 1.0"}
     ]
   end
 
