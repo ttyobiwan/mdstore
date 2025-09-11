@@ -1,4 +1,6 @@
 defmodule Mdstore.Payments.Test do
+  @behaviour Mdstore.Payments.Behavior
+
   def get_customer_by_email("nonexisting@email.com") do
     {:ok, %{data: []}}
   end

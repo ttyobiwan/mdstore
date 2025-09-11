@@ -1,5 +1,6 @@
 defmodule MdstoreWeb.ProductsLive.Show do
   import MdstoreWeb.MdComponents
+  alias Mdstore.Orders
   alias MdstoreWeb.UserAuth
   alias Mdstore.Checkouts
   alias Mdstore.Carts
@@ -29,6 +30,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
           |> assign(:product, product)
           |> assign(:loading, false)
           |> assign(:intent, nil)
+          |> assign(:order, nil)
 
         {:ok, socket}
     end
@@ -117,16 +119,24 @@ defmodule MdstoreWeb.ProductsLive.Show do
   def handle_event("submit_payment", _params, socket) do
     Logger.info("Payment submited by #{current_user(socket).email}: #{socket.assigns.intent.id}")
 
-    case Checkouts.update_status(socket.assigns.checkout, :submitted) do
-      {:ok, _checkout} ->
-        {:noreply,
-         socket
-         |> assign(:loading, true)
-         |> push_event("confirm_payment", %{client_secret: socket.assigns.intent.client_secret})}
+    with {:ok, checkout} <- Checkouts.update_status(socket.assigns.checkout, :submitted),
+         {:ok, order} <-
+           Orders.create_order(%{
+             status: :created,
+             user_id: current_user(socket).id,
+             checkout_id: checkout.id
+           }) do
+      socket =
+        socket
+        |> assign(:loading, true)
+        |> assign(:order, order)
+        |> push_event("confirm_payment", %{client_secret: socket.assigns.intent.client_secret})
 
+      {:noreply, socket}
+    else
       {:error, reason} ->
         Logger.error(
-          "Error when updating checkout status for #{current_user(socket).email}: #{inspect(reason)}"
+          "Error when submitting payment for #{current_user(socket).email}: #{inspect(reason)}"
         )
 
         socket =
@@ -145,13 +155,13 @@ defmodule MdstoreWeb.ProductsLive.Show do
       "Payment successfull for #{current_user(socket).email}: #{socket.assigns.intent.id}"
     )
 
-    case Checkouts.update_status(socket.assigns.checkout, :successful) do
-      {:ok, _checkout} ->
-        :ok
-
+    with {:ok, _checkout} <- Checkouts.update_status(socket.assigns.checkout, :successful),
+         {:ok, _order} <- Orders.update_order_status(socket.assigns.order, :paid) do
+      :ok
+    else
       {:error, reason} ->
         Logger.error(
-          "Error when updating checkout status for #{current_user(socket).email}: #{inspect(reason)}"
+          "Error when handling payment success for #{current_user(socket).email}: #{inspect(reason)}"
         )
     end
 

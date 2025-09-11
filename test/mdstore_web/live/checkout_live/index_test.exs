@@ -2,6 +2,7 @@ defmodule MdstoreWeb.CheckoutLive.IndexTest do
   alias Mdstore.Carts
   import Mdstore.AccountsFixtures
   import Mdstore.CheckoutsFixtures
+  import Mdstore.OrdersFixtures
   import Mdstore.CartsFixtures
   import Phoenix.LiveViewTest
 
@@ -54,6 +55,8 @@ defmodule MdstoreWeb.CheckoutLive.IndexTest do
       assert_push_event(lv, "confirm_payment", %{client_secret: "supersecretclientsecret"})
       checkout = reload_checkout_fixture!(checkout)
       assert checkout.status == :submitted
+      order = order_for_checkout_fixture!(checkout)
+      assert order.status == :created
     end
 
     test "handles payment success", %{conn: conn, user: user} do
@@ -64,9 +67,12 @@ defmodule MdstoreWeb.CheckoutLive.IndexTest do
       render_hook(lv, "payment_success", %{"payment_intent" => %{"id" => "pi_1"}})
 
       assert_redirected(lv, ~p"/products")
-      assert last_checkout_fixture!(user).status == :successful
+      checkout = last_checkout_fixture!(user)
+      assert checkout.status == :successful
       # nil because its closed now
       assert Carts.get_cart(user) == nil
+      order = order_for_checkout_fixture!(checkout)
+      assert order.status == :paid
     end
 
     test "handles payment error", %{conn: conn, user: user} do
@@ -77,7 +83,10 @@ defmodule MdstoreWeb.CheckoutLive.IndexTest do
       render_hook(lv, "payment_error", %{"error" => "Card declined"})
 
       assert render(lv) =~ "Something went wrong"
-      assert last_checkout_fixture!(user).status == :failed
+      checkout = last_checkout_fixture!(user)
+      assert checkout.status == :failed
+      order = order_for_checkout_fixture!(checkout)
+      assert order.status == :created
     end
   end
 end

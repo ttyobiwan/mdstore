@@ -7,6 +7,8 @@ defmodule Mdstore.Payments.Stripe do
   operations used in the Mdstore application.
   """
 
+  @behaviour Mdstore.Payments.Behavior
+
   alias Stripe.{PaymentIntent, Customer}
 
   @doc """
