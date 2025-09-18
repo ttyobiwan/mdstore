@@ -9,9 +9,10 @@ defmodule Mdstore.Checkouts.Checkout do
   schema "checkouts" do
     field :status, Ecto.Enum, values: [:started, :submitted, :successful, :failed]
     field :total, :float
-    field :user_id, :id
-    field :product_id, :id
-    field :cart_id, :id
+
+    belongs_to :user, Mdstore.Accounts.User
+    belongs_to :product, Mdstore.Products.Product
+    belongs_to :cart, Mdstore.Carts.Cart
 
     timestamps(type: :utc_datetime)
   end

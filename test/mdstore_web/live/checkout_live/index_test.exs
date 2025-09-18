@@ -68,11 +68,8 @@ defmodule MdstoreWeb.CheckoutLive.IndexTest do
 
       assert_redirected(lv, ~p"/products")
       checkout = last_checkout_fixture!(user)
-      assert checkout.status == :successful
-      # nil because its closed now
-      assert Carts.get_cart(user) == nil
       order = order_for_checkout_fixture!(checkout)
-      assert order.status == :paid
+      assert_enqueued worker: Mdstore.Workers.PaymentSuccess, args: %{order_id: order.id}
     end
 
     test "handles payment error", %{conn: conn, user: user} do

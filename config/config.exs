@@ -96,6 +96,12 @@ config :mdstore, :cachex, name: :cachex_default
 #   host: System.get_env("REDIS_HOST"),
 #   port: 6379
 
+# Configures Oban
+config :mdstore, Oban,
+  repo: Mdstore.Repo,
+  notifier: Oban.Notifiers.PG,
+  queues: [payments: 5]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

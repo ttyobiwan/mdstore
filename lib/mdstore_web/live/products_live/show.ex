@@ -124,7 +124,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
          ]) do
       {:ok, order} ->
         Logger.info(
-          "Order successfully places for user #{current_user(socket).email}: #{order.id}"
+          "Order successfully placed for user #{current_user(socket).email}: #{order.id}"
         )
 
         socket =
@@ -156,11 +156,10 @@ defmodule MdstoreWeb.ProductsLive.Show do
       "Payment successfull for #{current_user(socket).email}: #{socket.assigns.intent.id}"
     )
 
-    # TODO: Move to context and retry with oban
-    with {:ok, _checkout} <- Checkouts.update_status(socket.assigns.checkout, :successful),
-         {:ok, _order} <- Orders.update_order_status(socket.assigns.order, :paid) do
-      :ok
-    else
+    case Orders.handle_successful_payment(socket.assigns.order) do
+      {:ok, _result} ->
+        :ok
+
       {:error, reason} ->
         Logger.error(
           "Error when handling payment success for #{current_user(socket).email}: #{inspect(reason)}"

@@ -107,7 +107,7 @@ defmodule MdstoreWeb.CheckoutLive.Index do
     case Orders.place_order(checkout, current_user(socket), socket.assigns.cart.items) do
       {:ok, order} ->
         Logger.info(
-          "Order successfully places for user #{current_user(socket).email}: #{order.id}"
+          "Order successfully placed for user #{current_user(socket).email}: #{order.id}"
         )
 
         socket =
@@ -141,12 +141,10 @@ defmodule MdstoreWeb.CheckoutLive.Index do
       "Payment successfull for #{current_user(socket).email}: #{socket.assigns.intent.result.id}"
     )
 
-    # TODO: Move to context and retry with oban
-    with {:ok, _checkout} <- Checkouts.update_status(socket.assigns.checkout.result, :successful),
-         {:ok, _order} <- Orders.update_order_status(socket.assigns.order, :paid),
-         {:ok, _cart} <- Carts.close_cart(socket.assigns.cart) do
-      :ok
-    else
+    case Orders.handle_successful_payment(socket.assigns.order) do
+      {:ok, _result} ->
+        :ok
+
       {:error, reason} ->
         Logger.error(
           "Error handling payment success for #{current_user(socket).email}: #{inspect(reason)}"

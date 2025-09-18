@@ -28,6 +28,27 @@ defmodule Mdstore.Orders do
   end
 
   @doc """
+  Retrieves an order by its ID.
+
+  ## Parameters
+    - id: The ID of the order to retrieve
+
+  ## Returns
+    - `%Order{}` struct
+    - `nil` if no order exists with the given ID
+
+  ## Examples
+      iex> get_order(123)
+      %Order{id: 123, checkout: %Checkout{cart: %Cart{}}}
+
+      iex> get_order(999)
+      nil
+  """
+  def get_order(id) do
+    Repo.get(Order, id) |> Repo.preload(checkout: :cart)
+  end
+
+  @doc """
   Creates a new order item with the given attributes.
 
   ## Parameters
@@ -54,6 +75,10 @@ defmodule Mdstore.Orders do
     - `{:ok, %Order{}}` on success
     - `{:error, %Ecto.Changeset{}}` on failure
   """
+  def update_order_status(%Order{} = order, status) when order.status == status do
+    {:ok, order}
+  end
+
   def update_order_status(%Order{} = order, status) do
     order
     |> Order.status_changeset(%{status: status})
@@ -137,5 +162,21 @@ defmodule Mdstore.Orders do
       }
     )
     |> then(&Repo.insert_all(OrderItem, &1))
+  end
+
+  @doc """
+  Enqueues a job for processing payment success.
+
+  ## Parameters
+    - order: An Order struct representing the order that had a successful payment
+
+  ## Returns
+    - `{:ok, %Oban.Job{}}` on successful job enqueue
+    - `{:error, %Ecto.Changeset{}}` on failure
+  """
+  def handle_successful_payment(%Order{} = order) do
+    %{order_id: order.id}
+    |> Mdstore.Workers.PaymentSuccess.new()
+    |> Oban.insert()
   end
 end

@@ -1,6 +1,7 @@
 defmodule MdstoreWeb.Router do
   use MdstoreWeb, :router
 
+  import Oban.Web.Router
   import MdstoreWeb.UserAuth
 
   pipeline :browser do
@@ -103,5 +104,12 @@ defmodule MdstoreWeb.Router do
       live_dashboard "/dashboard", metrics: MdstoreWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+  end
+
+  ## Oban routes
+
+  scope "/" do
+    pipe_through :browser
+    oban_dashboard("/oban", resolver: Mdstore.Resolver)
   end
 end

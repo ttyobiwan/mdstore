@@ -63,6 +63,9 @@ defmodule Mdstore.MixProject do
       {:bandit, "~> 1.5"},
       {:stripity_stripe, "~> 2.0"},
       {:cachex, "~> 4.1"},
+      {:oban, "~> 2.19"},
+      {:oban_web, "~> 2.11"},
+      {:igniter, "~> 0.5", only: [:dev]},
       # If you want to use redis instead of cachex
       {:redix, "~> 1.5"},
       {:castore, "~> 1.0"}

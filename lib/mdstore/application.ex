@@ -11,6 +11,7 @@ defmodule Mdstore.Application do
       MdstoreWeb.Telemetry,
       Mdstore.Repo,
       {DNSCluster, query: Application.get_env(:mdstore, :dns_cluster_query) || :ignore},
+      {Oban, Application.fetch_env!(:mdstore, Oban)},
       {Phoenix.PubSub, name: Mdstore.PubSub},
       Application.get_env(:mdstore, :cache_backend).child_spec(),
       # Start a worker by calling: Mdstore.Worker.start_link(arg)

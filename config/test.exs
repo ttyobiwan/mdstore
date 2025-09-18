@@ -44,3 +44,6 @@ config :mdstore, :file_storage, Mdstore.Files.Storages.Test
 
 # Configures payment processor
 config :mdstore, :payment_processor, Mdstore.Payments.Test
+
+# Configures Oban
+config :mdstore, Oban, testing: :manual

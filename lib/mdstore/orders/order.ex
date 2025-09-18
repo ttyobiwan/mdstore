@@ -8,8 +8,9 @@ defmodule Mdstore.Orders.Order do
 
   schema "orders" do
     field :status, Ecto.Enum, values: [:created, :paid, :canceled]
-    field :user_id, :id
-    field :checkout_id, :id
+
+    belongs_to :user, Mdstore.Accounts.User
+    belongs_to :checkout, Mdstore.Checkouts.Checkout
 
     timestamps(type: :utc_datetime)
   end

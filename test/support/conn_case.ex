@@ -23,6 +23,7 @@ defmodule MdstoreWeb.ConnCase do
       @endpoint MdstoreWeb.Endpoint
 
       use MdstoreWeb, :verified_routes
+      use Oban.Testing, repo: Mdstore.Repo
 
       # Import conveniences for testing with connections
       import Plug.Conn

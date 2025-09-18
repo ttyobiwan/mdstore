@@ -124,6 +124,8 @@ defmodule Mdstore.Carts do
   - `{:ok, cart}` - If the cart was successfully closed
   - `{:error, changeset}` - If validation fails
   """
+  def close_cart(cart) when cart.is_open == false, do: {:ok, cart}
+
   def close_cart(cart) do
     cart
     |> Cart.open_changeset(%{is_open: false})
