@@ -2,6 +2,10 @@
 
 mdstore is an ecommerce app built with Phoenix framework, that focuses on simplicity and markdown-like design.
 
+<img width="400" height="400" alt="image" src="https://github.com/user-attachments/assets/d51c264f-c30f-41d8-b63a-bc448ad4430a" />
+
+I'm doing this for fun, don't judge me.
+
 ## Installation
 
 To get started, first prepare an `.env` file with all environment variables:
