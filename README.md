@@ -23,7 +23,10 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ## Next
 
-- [ ] Orders
+- [ ] Move stuff to context
+- [ ] Add oban for critical flows
+- [ ] Check Stripe webhook
+- [ ] Orders page
 
 ## Backlog
 
@@ -52,6 +55,7 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - [x] Checkout tests
 - [x] Featured products
 - [x] Cache featured products
+- [x] Orders
 
 - [ ] 404 page
 - [ ] Django-like admin navigation

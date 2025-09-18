@@ -1,4 +1,8 @@
 defmodule Mdstore.Orders.Order do
+  @moduledoc """
+  Order represents an order placed by a user.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

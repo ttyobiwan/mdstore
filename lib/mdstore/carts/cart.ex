@@ -1,4 +1,8 @@
 defmodule Mdstore.Carts.Cart do
+  @moduledoc """
+  Cart represents a collection of items that a user placed into a shopping cart.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

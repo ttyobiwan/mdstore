@@ -119,21 +119,22 @@ defmodule MdstoreWeb.ProductsLive.Show do
   def handle_event("submit_payment", _params, socket) do
     Logger.info("Payment submited by #{current_user(socket).email}: #{socket.assigns.intent.id}")
 
-    with {:ok, checkout} <- Checkouts.update_status(socket.assigns.checkout, :submitted),
-         {:ok, order} <-
-           Orders.create_order(%{
-             status: :created,
-             user_id: current_user(socket).id,
-             checkout_id: checkout.id
-           }) do
-      socket =
-        socket
-        |> assign(:loading, true)
-        |> assign(:order, order)
-        |> push_event("confirm_payment", %{client_secret: socket.assigns.intent.client_secret})
+    case Orders.place_order(socket.assigns.checkout, current_user(socket), [
+           %{product: socket.assigns.product, quantity: 1}
+         ]) do
+      {:ok, order} ->
+        Logger.info(
+          "Order successfully places for user #{current_user(socket).email}: #{order.id}"
+        )
 
-      {:noreply, socket}
-    else
+        socket =
+          socket
+          |> assign(:loading, true)
+          |> assign(:order, order)
+          |> push_event("confirm_payment", %{client_secret: socket.assigns.intent.client_secret})
+
+        {:noreply, socket}
+
       {:error, reason} ->
         Logger.error(
           "Error when submitting payment for #{current_user(socket).email}: #{inspect(reason)}"
@@ -155,6 +156,7 @@ defmodule MdstoreWeb.ProductsLive.Show do
       "Payment successfull for #{current_user(socket).email}: #{socket.assigns.intent.id}"
     )
 
+    # TODO: Move to context and retry with oban
     with {:ok, _checkout} <- Checkouts.update_status(socket.assigns.checkout, :successful),
          {:ok, _order} <- Orders.update_order_status(socket.assigns.order, :paid) do
       :ok
